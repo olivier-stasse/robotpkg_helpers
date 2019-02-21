@@ -36,7 +36,8 @@ class RobotpkgGenerateDockerFile:
         # Create the object analyzing robotpkg
         self.robotpkg_src_intro = RobotpkgSrcIntrospection(ROBOTPKG_ROOT_SRC)
         # Analyzes the CMakeLists.txt file
-        self.cmake()
+        if not self.cmake():
+            return
         # Check which packages are provided by robotpkg and which are provided by the OS
         # This part is still very fragile and error prone.
         self.filter_robotpkg_packages()
@@ -94,6 +95,10 @@ class RobotpkgGenerateDockerFile:
         filename = self.CMakeLists_txt_path
         self.dict_robot_pkgs={}
         self.dict_os_pkgs=[]
+        if not os.path.isfile(filename):
+            print("The file specified "+filename+" does not exists")
+            return False
+        
         with open(filename,"r") as f:
           content = f.read()
 
@@ -110,6 +115,7 @@ class RobotpkgGenerateDockerFile:
               print("CMakeLists.txt needs the following packages:")
               print(self.dict_robot_pkgs)
         f.close()
+        return True
 
     def filter_robotpkg_packages(self):
         """ This methods remove from the dictionnary dict_robot_pkgs the packages not handled by robotpkg.
