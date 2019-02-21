@@ -1,6 +1,27 @@
 import os
 import re
 from .package import RobotpkgPackage
+from .utils import build_test_rc_robotpkg_vars
+
+def add_robotpkg_src_introspection(anObject,ROBOTPKG_ROOT=None):
+    """ This function adds ROBOTPKG_ROOT, ROBOTPKG_ROOT_SRC and robotpkg_src_intro
+    if they do exist.
+    robotpkg_src_intro provides information on robotpkg
+    """
+    if hasattr(anObject,'robotpkg_src_intro'):
+        return
+    
+    if ROBOTPKG_ROOT is None:
+        robotpkg_vars = build_test_rc_robotpkg_vars()
+        anObject.ROBOTPKG_ROOT=robotpkg_vars['ROOT']
+    else:
+        anObject.ROBOTPKG_ROOT=ROBOTPKG_ROOT
+        
+    anObject.ROBOTPKG_ROOT_SRC=anObject.ROBOTPKG_ROOT + '/robotpkg'
+    
+    # Analysis the robotpkg src structure
+    anObject.robotpkg_src_intro= RobotpkgSrcIntrospection(anObject.ROBOTPKG_ROOT_SRC)
+
 
 # This class handles the analysis of a robotpkg directory
 class RobotpkgSrcIntrospection:
