@@ -1,3 +1,7 @@
+# Author: O. Stasse
+# See LICENSE.txt in root
+# Copyright CNRS
+
 import os
 import re
 
