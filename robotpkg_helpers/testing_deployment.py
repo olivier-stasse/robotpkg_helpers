@@ -145,6 +145,7 @@ class RobotpkgTests:
 	    'PREFER.ros-geometry = system',
 	    'PREFER.collada-dom = system',
 	    'PREFER.orocos-kdl = system',
+            'PREFER.octomap = system',
 	    'PREFER.ros-angles  = system',
 	    'PREFER.ros-console-bridge = system',
 	    'PREFER.ros-eigen-stl-containers = system',
