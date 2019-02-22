@@ -17,8 +17,9 @@ def execute(bashCommand, lenv, debug=0):
                                stdout=subprocess.PIPE,
                                env=lenv)
     outputdata, error = process.communicate()
-    for stdout_line in outputdata.splitlines():
-        print(stdout_line.decode('utf-8'))
+    if debug>3:
+        for stdout_line in outputdata.splitlines():
+            print(stdout_line.decode('utf-8'))
     return outputdata
 
 def execute_call(bashCommand, debug=0):
@@ -33,19 +34,19 @@ def execute_call(bashCommand, debug=0):
     """
     if debug>3:
         print("execute bash command: "+bashCommand)
-    subprocess.call(bashCommand,shell=True)
+    return subprocess.call(bashCommand,shell=True)
 
 def build_test_rc_robotpkg_vars():
     """ Build a dictionnary of basic robotpkg variables for a standard test_rc setup
     """
     import os
     env_vars=os.environ.copy()
-    root_devel_src=env_vars["HOME"]+'/devel-src'
+    root_devel_src=env_vars["HOME"]+'/devel-src/robotpkg_ws'
     user=env_vars["USER"]
 
     robotpkg_vars={}
     robotpkg_vars['ROOT']=root_devel_src+'/robotpkg-test-rc'
     robotpkg_vars['SRC']=robotpkg_vars['ROOT']+'/robotpkg'
-    robotpkg_vars['DISTFILES']=robotpkg_vars['ROOT']+'/distfiles'
+    robotpkg_vars['DISTFILES']=robotpkg_vars['SRC']+'/distfiles'
     return robotpkg_vars
 

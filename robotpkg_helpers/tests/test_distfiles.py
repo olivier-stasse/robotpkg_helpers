@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 import os
-from robotpkg_helpers import RobotpkgTests, build_test_rc_robot_vars
+from robotpkg_helpers import RobotpkgTests, build_test_rc_robotpkg_vars
 
 # This script assumes that a directory in your folder:
 # $HOME/devel-src/distfiles
@@ -22,6 +22,6 @@ arpg_test_dist_files =RobotpkgTests(robotpkg_vars['ROOT'])
 wip_repository='git@gepgitlab.laas.fr:'+user+'/robotpkg-wip.git wip'
 dist_files_path=robotpkg_vars['DISTFILES']
 
-arpg_test_dist_files.perform_test_dist_files(wip_repository,dist_files_path)
+arpg_test_dist_files.perform_test_rc(wip_repository,dist_files_path)
 arpg_test_dist_files.compile_package('talos-dev')
 

@@ -4,7 +4,6 @@
 
 import os
 import re
-from github import Github
 from .src_introspection import add_robotpkg_src_introspection
 
 class RobotpkgLaasWorkspace:
@@ -47,7 +46,6 @@ class RobotpkgLaasWorkspace:
         for key,package in self.robotpkg_src_intro.package_dict.items():
             if hasattr(package,'org_name'):
                 if not len(package.org_name)==0:
-                    print(package.name+':'+package.org_name)
-                    if package.org_name==org_name:
-                        print(package.name)
+                    if package.org_name[0]==org_name:
+                        print(package.name+':'+package.org_name[0])
             

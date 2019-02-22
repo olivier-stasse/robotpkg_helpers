@@ -3,22 +3,28 @@ import re
 from .package import RobotpkgPackage
 from .utils import build_test_rc_robotpkg_vars
 
-def add_robotpkg_src_introspection(anObject,ROBOTPKG_ROOT=None):
+def add_robotpkg_variables(anObject,ROBOTPKG_ROOT=None):
     """ This function adds ROBOTPKG_ROOT, ROBOTPKG_ROOT_SRC and robotpkg_src_intro
     if they do exist.
+    It also adds robotpkg_vars
     robotpkg_src_intro provides information on robotpkg
     """
-    if hasattr(anObject,'robotpkg_src_intro'):
-        return
     
     if ROBOTPKG_ROOT is None:
-        robotpkg_vars = build_test_rc_robotpkg_vars()
-        anObject.ROBOTPKG_ROOT=robotpkg_vars['ROOT']
+        anObject.robotpkg_vars = build_test_rc_robotpkg_vars()
+        anObject.ROBOTPKG_ROOT= anObject.robotpkg_vars['ROOT']
     else:
         anObject.ROBOTPKG_ROOT=ROBOTPKG_ROOT
         
     anObject.ROBOTPKG_ROOT_SRC=anObject.ROBOTPKG_ROOT + '/robotpkg'
-    
+
+def add_robotpkg_src_introspection(anObject,ROBOTPKG_ROOT=None):
+    if hasattr(anObject,'robotpkg_src_intro'):
+        return
+
+    if not hasattr(anObject,'ROBOTPKG_ROOT_SRC'):
+        add_robotpkg_variables(anObject,ROBOTPKG_ROOT)
+        
     # Analysis the robotpkg src structure
     anObject.robotpkg_src_intro= RobotpkgSrcIntrospection(anObject.ROBOTPKG_ROOT_SRC)
 
@@ -145,3 +151,5 @@ class RobotpkgSrcIntrospection:
             print(a_rpkg.tree_of_includes_dep)
             print("OS dep:")
             print(a_rpkg.tree_of_includes_os)
+
+    

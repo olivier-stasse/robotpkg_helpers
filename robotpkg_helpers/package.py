@@ -17,6 +17,7 @@ class RobotpkgPackage:
     def display(self):
         """ Display the information extracted from robotpkg
         """
+        print("************************************")
         print("Name: "+self.name)
         print("Path: "+self.path)
         print("Group: "+self.group)
@@ -26,12 +27,12 @@ class RobotpkgPackage:
         if hasattr(self,'rpkg_name'):
             if not len(self.rpkg_name)==0:
                 print("Robotpkg name: ")
-                print(self.rpkg_name)
+                print(self.rpkg_name[0])
 
         if hasattr(self,'org_name'):                
             if not len(self.org_name)==0:
                 print("Organization: ")
-                print(self.org_name)
+                print(self.org_name[0])
                 
         if hasattr(self,'master_repository'):
             if not len(self.master_repository)==0:
@@ -80,14 +81,16 @@ class RobotpkgPackage:
         """
 
         # Search for NAME
-        self.rpkg_name = re.findall("PKGNAME\s*=\s*([0-9azA-Z-]+)",make_content)
+        self.rpkg_name = re.findall('PKGNAME\s*=\s*([0-9a-zA-Z\-]+)',make_content)
+        #self.rpkg_name = re.findall('PKGNAME\s*=\s*([^\s>="\']+)',make_content)
+        #[^\s>="\'
         if self.debug>3:
             print("analyze_makefile for " + self.name)
             if not len(self.rpkg_name)==0 :
                 print("analyze_makefile: " + self.rpkg_name[0])
 
         # Search for ORG
-        self.org_name = re.findall("ORG\s*=\s*([azA-Z-]+)",make_content)
+        self.org_name = re.findall("ORG\s*=\s*([a-zA-Z\-]+)",make_content)
         if self.debug>3:
             if not len(self.org_name)==0:
                 print("analyze_makefile: " + self.org_name[0])
