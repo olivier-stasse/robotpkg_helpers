@@ -20,6 +20,7 @@ class RobotpkgTests:
 
         # Add ROBOTPKG_ROOT, ROBOTPKG_ROOT_SRC to self
         add_robotpkg_variables(self,ROBOTPKG_ROOT)
+        
         if not hasattr(self,'ROBOTPKG_ROOT_SRC'):
             print('add_robotpkg_variables is not doing what it is suppose to be doing\n')
             sys.exit()
@@ -27,6 +28,7 @@ class RobotpkgTests:
         self.init_colors()
         # Prepare the environment variables to compile with robotpkg 
         self.init_environment_variables(self.ROBOTPKG_ROOT)
+        
         # Prepare the robotpkg.conf
         self.init_robotpkg_conf_add()
 
@@ -385,6 +387,7 @@ class RobotpkgTests:
         and check if this is in the robotpkg list
         """
         if arch_release_candidates != None:
+            print("arch_release_candidates: "+arch_release_candidates)
             for package_name,branch_name in arch_release_candidates:
                 if not package_name in self.robotpkg_src_intro.package_dict.keys():
                     print(self.RED + package_name + " not in robotpkg.\nPlease check the name"+self.NC)        
@@ -398,7 +401,6 @@ class RobotpkgTests:
 
         arch_release_candidates: tuple of list [ ('package_name','branch_name','group'), ... ]
         """
-
         
         if wip_repository==None:
             if self.ssh_git_openrobots==True:
