@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 import socket
 
-from .utils import execute, execute_call
+from .utils import execute, execute_call,init_environment_variables
 from .src_introspection import RobotpkgPackage,RobotpkgSrcIntrospection
 from .src_introspection import add_robotpkg_variables,add_robotpkg_src_introspection
 
@@ -27,7 +27,7 @@ class RobotpkgTests:
             
         self.init_colors()
         # Prepare the environment variables to compile with robotpkg 
-        self.init_environment_variables(self.ROBOTPKG_ROOT)
+        init_environment_variables(self,self.ROBOTPKG_ROOT)
         
         # Prepare the robotpkg.conf
         self.init_robotpkg_conf_add()
@@ -52,61 +52,6 @@ class RobotpkgTests:
     def execute_call(self,bashCommand):
         return execute_call(bashCommand,self.debug)
         
-    def init_environment_variables(self, ROBOTPKG_ROOT):
-        """Prepare the environment variables.
-        
-        Specifies the environment when starting bash commands
-        """
-        self.ROBOTPKG_ROOT = ROBOTPKG_ROOT
-        self.env = os.environ.copy()
-        ROBOTPKG_BASE = self.ROBOTPKG_ROOT+'/install'
-        self.env["ROBOTPKG_BASE"] = ROBOTPKG_BASE
-        # Imposes bash as the shell
-        self.env["SHELL"] = "/usr/bin/bash"
-        # For binaries
-        self.env["PATH"] = ROBOTPKG_BASE+'/sbin:' + \
-            ROBOTPKG_BASE+'/bin:'+self.env["PATH"]
-        
-        # For libraries
-        prev_LD_LIBRARY_PATH=''
-        if "LD_LIBRARY_PATH" in self.env:
-            prev_LD_LIBRARY_PATH = self.env["LD_LIBRARY_PATH"]
-        self.env["LD_LIBRARY_PATH"] = ROBOTPKG_BASE+'/lib:' \
-            +ROBOTPKG_BASE+'/lib/plugin:' \
-            +ROBOTPKG_BASE+'/lib64:' \
-            +prev_LD_LIBRARY_PATH
-        
-        # For python
-        prev_PYTHON_PATH=''
-        if "PYTHON_PATH" in self.env:
-            prev_PYTHON_PATH = self.env["PYTHON_PATH"]
-        self.env["PYTHON_PATH"]=ROBOTPKG_BASE+'/lib/python2.7/site-packages:' \
-            +ROBOTPKG_BASE+'/lib/python2.7/dist-packages:' \
-            +prev_PYTHON_PATH
-        
-        # For pkgconfig
-        prev_PKG_CONFIG_PATH=''
-        if "PKG_CONFIG_PATH" in self.env:
-            prev_PKG_CONFIG_PATH = self.env["PKG_CONFIG_PATH"]
-
-        self.env["PKG_CONFIG_PATH"]=ROBOTPKG_BASE+'/lib/pkgconfig:' \
-            +prev_PKG_CONFIG_PATH
-        
-        # For ros packages
-        prev_ROS_PACKAGE_PATH=''
-        if "ROS_PACKAGE_PATH" in self.env:
-            prev_ROS_PACKAGE_PATH = self.env["ROS_PACKAGE_PATH"]
-        
-        self.env["ROS_PACKAGE_PATH"]=ROBOTPKG_BASE+'/share:' \
-            +ROBOTPKG_BASE+'/stacks' \
-            +prev_ROS_PACKAGE_PATH
-        
-        # For cmake
-        prev_CMAKE_PREFIX_PATH=''
-        if "CMAKE_PREFIX_PATH" in self.env:
-            prev_CMAKE_PREFIX_PATH = self.env["CMAKE_PREFIX_PATH"]
-            
-        self.env["CMAKE_PREFIX_PATH"]=ROBOTPKG_BASE+':'+prev_CMAKE_PREFIX_PATH
 
     def init_robotpkg_conf_add(self):
         self.robotpkg_conf_lines = [
@@ -166,6 +111,15 @@ class RobotpkgTests:
 	    'PREFER.assimp=system',
             'ACCEPTABLE_LICENSES+=pal-license',
             'ROS_PACKAGE_PATH='+self.ROBOTPKG_ROOT+'/install/share:$ROS_PACKAGE_PATH']
+
+        env=os.environ.copy()
+        if 'JRL_FTP_USER' in env.keys():
+            jrl_ftp_user = 'JRL_FTP_USER='+env['JRL_FTP_USER']
+            self.robotpkg_conf_lines.append(jrl_ftp_user)
+        if 'JRL_FTP_PASSWD' in env.keys():
+            jrl_ftp_passwd = 'JRL_FTP_PASSWD='+env['JRL_FTP_PASSWD']
+            self.robotpkg_conf_lines.append(jrl_ftp_passwd)
+            
 
     def is_robotpkg_present(self,wip_repository):
         """ Check if there is already a robotpkg directory with wip

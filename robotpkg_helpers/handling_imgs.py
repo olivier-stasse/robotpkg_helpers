@@ -5,7 +5,8 @@
 import os
 import datetime
         
-from  .utils import execute,execute_call,add_robotpkg_mng_variables
+from .utils import execute,execute_call,add_robotpkg_mng_variables
+from .utils import init_environment_variables,execute_capture_output
 
 from .src_introspection import add_robotpkg_variables
 
@@ -36,10 +37,12 @@ class HandlingImgs:
 
         # Populate the object with field ROBOTPKG_ROOT
         add_robotpkg_variables(self,self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
+
+        # Populate the object with the robotpkg environment variables
+        init_environment_variables(self,self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
         
-        # Copy the environment variables
-        self.env = os.environ.copy()
-        self.user_name = self.env['USER']
+        # Extract the user name even in case of sudo
+        self.user_name = self.extract_user_name()
 
         # Debug level
         self.debug=debug
@@ -74,9 +77,13 @@ class HandlingImgs:
             bashCmd="mount -t tmpfs -o size=4096m new_ram_disk "+self.ramfs_dir
             execute(bashCmd,self.env,self.debug)
 
+        # Getting the name of the user
+        
+        
+        
         # checking the ram FS mounting point directory
         bashCmd="chown "+ self.user_name + '.' + \
-            self.user_name + self.ramfs_dir+ " " 
+            self.user_name + ' ' + self.ramfs_dir+ " " 
         execute(bashCmd,self.env,self.debug)
 
     def prepare_mng_dirs(self):
@@ -116,9 +123,10 @@ class HandlingImgs:
         str_base_name_root,str_base_name_ext = os.path.splitext(str_base_name)
         description_file_name = backup_dir+ '/' + str_base_name_root +'.txt'
         
-        bashCmd="robotpkg_info > "+ description_file_name
+        bashCmd=self.robotpkg_mng_vars['ROBOTPKG_BASE']+ \
+           "/sbin/robotpkg_info "
         print(bashCmd)
-        execute_call(bashCmd,self.debug)
+        execute_capture_output(bashCmd,description_file_name,self.env,self.debug)
     
     def backup_rpkg_dir(self,backup_dir=None,tar_file_name=None):
         """ Backup the build directory in a specific backup directory
@@ -171,6 +179,41 @@ class HandlingImgs:
         
         # Creating the tarball.
         execute(bashCmd,self.env,self.debug)
+        
+        # Going back to where we were
+        os.chdir(current_path)
+        
+    def extract_user_name(self):
+        bashCmd="logname"
+        output_data=execute(bashCmd,self.env,debug=0)
+        nb_line=0
+        for stdout_line in output_data.splitlines():
+            if nb_line==0:
+                user_name=stdout_line.decode('utf-8')
+                break
+            nb_line=nb_line+1
+            
+        return user_name
+
+    def clean_integration_directory(self):
+        # Storing the current path
+        current_path=os.getcwd()
+
+        # Going inside ROBOTPKG_MNG_ROOT
+        os.chdir(self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
+
+        print(os.getcwd())
+        bashCmd="rm -rf robotpkg"
+        print(bashCmd)
+        res=input('Execute ? [y/n]')
+        if res=='y':
+            output_data=execute(bashCmd,self.env,debug=0)
+
+        bashCmd="rm -rf install"
+        print(bashCmd)
+        res=input('Execute ? [y/n]')
+        if res=='y':
+            output_data=execute(bashCmd,self.env,debug=0)
         
         # Going back to where we were
         os.chdir(current_path)
