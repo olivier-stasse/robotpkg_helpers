@@ -279,7 +279,7 @@ class RobotpkgTests:
                         print('Git folder found:'+git_folder)
                     # Now that we detected a git folder
                     # Check the branch
-                    outputdata =self.execute("git symbolic-ref --short -q HEAD")
+                    outputdata,error =self.execute("git symbolic-ref --short -q HEAD")
                     if outputdata != None:
                         for stdout_line in outputdata.splitlines():
                             lstr = str(stdout_line.decode('utf-8'))
