@@ -51,7 +51,6 @@ class RobotpkgTests:
 
     def execute_call(self,bashCommand):
         return execute_call(bashCommand,self.debug)
-        
 
     def init_robotpkg_conf_add(self):
         self.robotpkg_conf_lines = [
@@ -157,17 +156,40 @@ class RobotpkgTests:
         dirname=self.ROBOTPKG_ROOT+'/install'
         os.makedirs(dirname,0o777,True)
         
-    def cloning_robotpkg_main(self):
-        """Clones the main robotpkg repository"""
-        print(self.GREEN+'Cloning robotpkg'+self.NC+'\n')
-        os.chdir(self.ROBOTPKG_ROOT)
-        self.execute("git clone https://git.openrobots.org/robots/robotpkg.git")
+    def cloning_robotpkg_repo(self,dirpath,repo):
+        """Clones the repository repo in dirpath """
+        os.chdir(dirpath)
 
+        ldebug = self.debug
+        self.debug=0
+        outputdata,error = self.execute("git clone "+repo)
+        self.debug=ldebug
+
+        if outputdata!=None:
+            for stdout_line in outputdata.splitlines():
+                print(stdout_line.decode('utf-8'))
+
+        if error!=None:
+            print("There is an error")
+            for stdout_line in error.splitlines():
+                str_cmp = stdout_line.decode('utf-8')
+                str2_cmp='fatal: destination path \'robotpkg\' already exists and is not an empty directory.'
+                
+                if str_cmp==str2_cmp:
+                    print('robotpkg already exists -> update the repository ')
+                    outputdata,error = self.execute("git pull origin master:master")
+
+    def cloning_robotpkg_main(self,):                    
+        dirpath = self.ROBOTPKG_ROOT
+        repo = 'https://git.openrobots.org/robots/robotpkg.git'
+        print(self.GREEN+'Cloning robotpkg'+self.NC+' in ' + self.ROBOTPKG_ROOT + '\n')
+        self.cloning_robotpkg_repo(dirpath,repo)
+        
     def cloning_robotpkg_wip(self,wip_repository):
         """Clones the wip robotpkg repository"""
-        os.chdir(self.ROBOTPKG_ROOT+'/robotpkg')
+        dirpath=self.ROBOTPKG_ROOT+'/robotpkg'
         print(self.GREEN+'Cloning robotpkg/wip'+self.NC+'\n')
-        self.execute("git clone "+wip_repository)
+        self.cloning_robotpkg_repo(dirpath,wip_repository)
 
     def bootstrap_robotpkg(self):
         """ bootstrap robotpkg
@@ -341,7 +363,8 @@ class RobotpkgTests:
         and check if this is in the robotpkg list
         """
         if arch_release_candidates != None:
-            print("arch_release_candidates: "+arch_release_candidates)
+            print("arch_release_candidates: ")
+            print(arch_release_candidates)
             for package_name,branch_name in arch_release_candidates:
                 if not package_name in self.robotpkg_src_intro.package_dict.keys():
                     print(self.RED + package_name + " not in robotpkg.\nPlease check the name"+self.NC)        
