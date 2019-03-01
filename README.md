@@ -2,6 +2,61 @@
 
 This is a python package providing tools to handle [robotpkg](http://robotpkg.openrobots.org/robotpkg/README.html).
 
+## Creating your own install of the SoT from source:
+
+### Creates your workspace:
+```
+sudo prepare_integration_dirs.py
+```
+This will create the directories:
+```
+/integration_tests/arch_distfiles
+/integration_tests/archives
+/integration_tests/robotpkg-test-rc
+```
+<b>robotpkg-test-rc</b> should be highlighted because it is mounted over a ram filesystem.
+This is allowing faster access time when compiling.
+Be aware that turn off your computer may make you loose all the data in this directory.
+This problem is addressed in the following steps.
+
+### Deploy a first application
+'''
+build_talos_simpulation.py
+'''
+This will build a complete installation of the packages needed to simulate the TALOS robot.
+It however computes only the PAL robotics packages, the standard ROS packages are assumed to be installed previously.
+The robotpkg sources are located in:
+'''
+/integration_tests/robotpkg-test-rc/robotpkg
+'''
+The wip robotpkg sources are located in:
+'''
+/integration_tests/robotpkg-test-rc/robotpkg/wip
+'''
+The installation is realized in :
+'''
+/integration_tests/robotpkg-test-rc/install
+'''
+
+### Make a first backup
+'''
+save_integration_dir.py
+'''
+This will save the following directories:
+'''
+/integration_tests/robotpkg-test-rc/robotpkg
+/integration_tests/robotpkg-test-rc/install
+'''
+in the file called 
+```
+robotpkg_year_month_day_hour_sec.tgz
+```
+located in this directory:
+```
+/integration_tests/archives
+```
+
+
 ## Tools
 
 Set of python scripts to perform:
