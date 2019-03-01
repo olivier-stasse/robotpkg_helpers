@@ -6,6 +6,6 @@ arch_release_candidates= [ ('dynamic-graph-v3','rc-v3.2.2'),
                            ('py-dynamic-graph-bridge-v3','rc-v3.2.3'),
                            ]
 
-arpgtestrc =RobotpkgTests()
+arpgtestrc =RobotpkgTests("/integration_tests/robotpkg-test-rc")
 arpgtestrc.perform_test_rc(arch_release_candidates)
 arpgtestrc.compile_package('talos-dev')
