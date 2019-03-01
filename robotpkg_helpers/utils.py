@@ -35,12 +35,13 @@ def execute(bashCommand, lenv, debug=0):
         print("execute bash command: "+bashCommand)
     process = subprocess.Popen(bashCommand.split(),
                                stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE,
                                env=lenv)
     outputdata, error = process.communicate()
     if debug>3:
         for stdout_line in outputdata.splitlines():
             print(stdout_line.decode('utf-8'))
-    return outputdata
+    return outputdata,error
 
 def execute_call(bashCommand, debug=0):
     """ Execute baschCommand 
