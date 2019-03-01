@@ -77,13 +77,9 @@ class HandlingImgs:
             bashCmd="mount -t tmpfs -o size=4096m new_ram_disk "+self.ramfs_dir
             execute(bashCmd,self.env,self.debug)
 
-        # Getting the name of the user
-        
-        
-        
         # checking the ram FS mounting point directory
         bashCmd="chown "+ self.user_name + '.' + \
-            self.user_name + ' ' + self.ramfs_dir+ " " 
+            self.group_name + ' ' + self.ramfs_dir+ " " 
         execute(bashCmd,self.env,self.debug)
 
     def prepare_mng_dirs(self):
@@ -184,6 +180,9 @@ class HandlingImgs:
         os.chdir(current_path)
         
     def extract_user_name(self):
+        """ Extraction the username
+        This creates the field user_name
+        """         
         bashCmd="logname"
         output_data=execute(bashCmd,self.env,debug=0)
         nb_line=0
@@ -194,6 +193,32 @@ class HandlingImgs:
             nb_line=nb_line+1
             
         return user_name
+
+    def extract_group_name(self):
+        """ Extraction the main group of the user
+        This creates the field group_name
+        """ 
+        if not hasattr(self,'user_name'):
+            self.extract_user_name()
+        else:
+            if self.user_name==None:
+                self.extract_user_name()
+                
+        bashCmd="groups "+self.user_name
+        output_data=execute(bashCmd,self.env,debug=0)
+        
+        group_name=''
+        nb_line=0
+        for stdout_line in output_data.splitlines():
+            if nb_line==0:
+                group_names=stdout_line.decode('utf-8').split(' ')
+                # First and second fields are:
+                # ['username'.':']
+                group_name=group_names[2]
+                break
+            nb_line=nb_line+1
+            
+        return group_name
 
     def clean_integration_directory(self):
         # Storing the current path
