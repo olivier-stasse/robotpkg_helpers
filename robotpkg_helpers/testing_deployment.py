@@ -109,7 +109,9 @@ class RobotpkgTests:
 	    'PREFER.ros-orocos-kdl = system',
 	    'PREFER.assimp=system',
             'ACCEPTABLE_LICENSES+=pal-license',
-            'ROS_PACKAGE_PATH='+self.ROBOTPKG_ROOT+'/install/share:$ROS_PACKAGE_PATH']
+            'ROS_PACKAGE_PATH='+self.env["ROS_PACKAGE_PATH"],
+            'PKG_CONFIG_DIRS='+self.env["PKG_CONFIG_PATH"]
+        ]
 
         env=os.environ.copy()
         if 'JRL_FTP_USER' in env.keys():
@@ -347,6 +349,7 @@ class RobotpkgTests:
         checkoutdir_pkg_path=self.build_rpkg_checkoutdir_pkg_path(packagename)
         # If the installation has already been done
         if os.path.isdir(checkoutdir_pkg_path):
+            self.debug=5
             self.execute("make update confirm")
         else:
             self.execute("make install")

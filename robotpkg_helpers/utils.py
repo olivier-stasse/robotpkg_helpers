@@ -33,6 +33,8 @@ def execute(bashCommand, lenv, debug=0):
     # TODO: Handle error
     if debug>3:
         print("execute bash command: "+bashCommand)
+        print("env to run the command:")
+        print(lenv)
     process = subprocess.Popen(bashCommand.split(),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE,
@@ -124,12 +126,12 @@ def init_environment_variables(anObject, ROBOTPKG_ROOT):
         +prev_LD_LIBRARY_PATH
         
     # For python
-    prev_PYTHON_PATH=''
-    if "PYTHON_PATH" in anObject.env:
-        prev_PYTHON_PATH = anObject.env["PYTHON_PATH"]
-    anObject.env["PYTHON_PATH"]=ROBOTPKG_BASE+'/lib/python2.7/site-packages:' \
+    prev_PYTHONPATH=''
+    if "PYTHONPATH" in anObject.env:
+        prev_PYTHONPATH = anObject.env["PYTHONPATH"]
+    anObject.env["PYTHONPATH"]=ROBOTPKG_BASE+'/lib/python2.7/site-packages:' \
         +ROBOTPKG_BASE+'/lib/python2.7/dist-packages:' \
-        +prev_PYTHON_PATH
+        +prev_PYTHONPATH
         
     # For pkgconfig
     prev_PKG_CONFIG_PATH=''
@@ -145,7 +147,7 @@ def init_environment_variables(anObject, ROBOTPKG_ROOT):
         prev_ROS_PACKAGE_PATH = anObject.env["ROS_PACKAGE_PATH"]
         
     anObject.env["ROS_PACKAGE_PATH"]=ROBOTPKG_BASE+'/share:' \
-        +ROBOTPKG_BASE+'/stacks' \
+        +ROBOTPKG_BASE+'/stacks:' \
         +prev_ROS_PACKAGE_PATH
         
     # For cmake
