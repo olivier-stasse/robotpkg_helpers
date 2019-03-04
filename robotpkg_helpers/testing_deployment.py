@@ -180,6 +180,7 @@ class RobotpkgTests:
                 if str_cmp==str2_cmp:
                     print('robotpkg already exists -> update the repository ')
                     outputdata,error = self.execute("git pull origin master:master")
+                else print(str_cmp)
 
     def cloning_robotpkg_main(self,):                    
         dirpath = self.ROBOTPKG_ROOT
@@ -349,8 +350,11 @@ class RobotpkgTests:
         checkoutdir_pkg_path=self.build_rpkg_checkoutdir_pkg_path(packagename)
         # If the installation has already been done
         if os.path.isdir(checkoutdir_pkg_path):
-            self.debug=5
-            self.execute("make update confirm")
+            output, error=self.execute("make update confirm")
+            if error!=None:
+                for stdout_line in error.splitlines():
+                    str_cmp = stdout_line.decode('utf-8')
+                    print(str_cmp)
         else:
             self.execute("make install")
 
