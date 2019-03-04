@@ -44,6 +44,9 @@ class HandlingImgs:
         # Extract the user name even in case of sudo
         self.user_name = self.extract_user_name()
 
+        # Extract the user name even in case of sudo
+        self.group_name = self.extract_group_name()
+
         # Debug level
         self.debug=debug
 
@@ -184,7 +187,7 @@ class HandlingImgs:
         This creates the field user_name
         """         
         bashCmd="logname"
-        output_data=execute(bashCmd,self.env,debug=0)
+        output_data,error=execute(bashCmd,self.env,debug=0)
         nb_line=0
         for stdout_line in output_data.splitlines():
             if nb_line==0:
@@ -205,7 +208,7 @@ class HandlingImgs:
                 self.extract_user_name()
                 
         bashCmd="groups "+self.user_name
-        output_data=execute(bashCmd,self.env,debug=0)
+        output_data,error =execute(bashCmd,self.env,debug=0)
         
         group_name=''
         nb_line=0

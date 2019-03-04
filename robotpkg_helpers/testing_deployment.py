@@ -285,6 +285,12 @@ class RobotpkgTests:
                             lstr = str(stdout_line.decode('utf-8'))
                             if lstr != branchname:
                                 print(self.RED+' Wrong branch name: '+lstr+' instead of '+branchname+self.NC)
+                                # Switch to upstream branch.
+                                self.execute("git checkout -b remotes/origin/"+branchname)
+                                # Give it the name of the bran
+                                self.execute("git checkout -b "+branchname)
+                                directory_to_clean=False
+                                finaldirectory=folder                                
                             else:
                                 finaldirectory=folder
                                 directory_to_clean=False
@@ -302,7 +308,7 @@ class RobotpkgTests:
             os.chdir(finaldirectory)
             # Remove all the files which may have been modified.
             self.execute("git reset --hard")
-            # Pull all the modification push upstream.
+            # Pull all the modification from upstream.
             self.execute("git pull origin "+branchname+':'+branchname)
             self.execute("git submodule update")
 
@@ -314,7 +320,11 @@ class RobotpkgTests:
         really a git repository. Then it performs the branch switch.
         """
         bashcmd='git checkout '+branchname
+        if self.debug>3:
+            print(bashcmd)
         checkoutdir_pkg_path=self.build_rpkg_checkoutdir_pkg_path(packagename)
+        if self.debug>3:
+            print(checkoutdir_pkg_path)
         folders=[f.path for f in os.scandir(checkoutdir_pkg_path) if f.is_dir()]
         for folder in folders:
            if self.debug>3:
@@ -399,7 +409,6 @@ class RobotpkgTests:
 
         # Copy dist files if specified
         self.copy_test_dist_files(dist_files_path)
-
             
         # Download and install each package
         handling_package_properly_done = True

@@ -4,12 +4,13 @@ from robotpkg_helpers import RobotpkgTests, build_test_rc_robotpkg_vars
 
 
 arch_release_candidates= [ ('dynamic-graph-v3','devel'),
-                           ('sot-core-v3','master'),
-                           ('py-sot-core-v3','master'),
-                           ('sot-dynamic-pinocchio-v3','master'),
-                           ('py-sot-dynamic-pinocchio-v3','master'),
-                           ('roscontrol-sot','master'),
-                           ('sot-torque-control','master'),
+                           ('sot-core-v3','devel'),
+                           ('py-sot-core-v3','devel'),
+                           ('sot-dynamic-pinocchio-v3','devel'),
+                           ('py-sot-dynamic-pinocchio-v3','devel'),
+                           ('tsid','devel'),
+                           ('parametric-curves','devel'),
+                           ('sot-torque-control','devel'),
                            ('sot-talos','master')
 ]
 
@@ -18,7 +19,8 @@ dist_files_path=robotpkg_vars['DISTFILES']
 arpgtestrc =RobotpkgTests("/integration_tests/robotpkg-test-rc")
 
 # Perform the deployment in arpgtestrc
-if arpgtestrc.perform_test_rc(arch_release_candidates,dist_files_path):
+if arpgtestrc.perform_test_rc(arch_release_candidates,
+                              dist_files_path=dist_files_path):
     # If it worked then compile the package talos-dev
     arpgtestrc.compile_package('talos-dev')
 else:

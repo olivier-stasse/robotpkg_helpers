@@ -69,6 +69,11 @@ class RobotpkgSrcIntrospection:
         # Explore robotpkg src direction
         dirs=os.listdir(self.ROBOTPKG_ROOT_SRC)
         for adir in dirs:
+            # Ignore distfiles directory.
+            if adir=='distfiles':
+                continue
+            
+            # General repo
             dirname = self.ROBOTPKG_ROOT_SRC+'/'+adir
             if os.path.isdir(dirname):
                 os.chdir(dirname)
