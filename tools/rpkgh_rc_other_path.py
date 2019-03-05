@@ -1,18 +1,12 @@
 #!/usr/bin/python3
 import os
+import json
 from robotpkg_helpers import RobotpkgTests, build_test_rc_robotpkg_vars
 
-
-# arch_release_candidates= [ ('dynamic-graph-v3','devel'),
-#                            ('sot-core-v3','devel'),
-#                            ('py-sot-core-v3','devel'),
-#                            ('sot-dynamic-pinocchio-v3','devel'),
-#                            ('py-sot-dynamic-pinocchio-v3','devel'),
-#                            ('tsid','devel'),
-#                            ('parametric-curves','devel'),
-#                            ('sot-torque-control','devel'),
-#                            ('sot-talos','master')
-# ]
+with open('arch_rc.json') as f:
+  arch_release_candidates=json.load(f)
+  
+print(arch_release_candidates)
 
 robotpkg_vars = build_test_rc_robotpkg_vars()
 dist_files_path=robotpkg_vars['DISTFILES']
