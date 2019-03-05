@@ -180,7 +180,8 @@ class RobotpkgTests:
                 if str_cmp==str2_cmp:
                     print('robotpkg already exists -> update the repository ')
                     outputdata,error = self.execute("git pull origin master:master")
-                else print(str_cmp)
+                else:
+                    print(str_cmp)
 
     def cloning_robotpkg_main(self,):                    
         dirpath = self.ROBOTPKG_ROOT
