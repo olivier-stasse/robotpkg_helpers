@@ -4,7 +4,9 @@ This is a python package providing tools to handle [robotpkg](http://robotpkg.op
 
 ## Building and deploy a local install of the [stack-of-tasks](http://stack-of-tasks.github.io) from source:
 
-### Creates your workspace:
+### Creating your workspace:
+
+First types:
 ```
 sudo rpkgh_prepare_integration_dirs.py
 ```
@@ -19,7 +21,7 @@ This will create the directories:
 
 *robotpkg-test-rc* should be highlighted because it is mounted over a ram filesystem.
 This is allowing faster access time when compiling.
-Be aware that turn off your computer may make you loose all the data in this directory.
+Be aware that turn off your computer may make you lost all the data in this directory.
 This problem is addressed in the following steps.
 
 ### Deploy a first application
