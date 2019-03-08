@@ -87,6 +87,9 @@ class HandlingImgs:
 
     def prepare_mng_dirs(self):
         """ Create the directories for managing integration tests
+        New behavior do not create ramfs by default.
+        This should be done by the user using
+        rpkgh_create_ramfs.py
         """
 
         # First step: check that all directories exists
@@ -97,11 +100,6 @@ class HandlingImgs:
             if not os.path.isdir(mng_dir_name):
                 os.makedirs(mng_dir_name,0o777,True)
 
-        # Second step: Create ramfs
-        self.create_ramfs_dir()
-
-        # Third step: Deploy the latest tar ball
-        
 
     def build_tar_file_name(self,backup_dir):
         # Build name of the tar ball.

@@ -72,7 +72,7 @@ def build_test_rc_robotpkg_vars(ROBOTPKG_ROOT=None):
     robotpkg_vars={}
     robotpkg_vars['ROOT']=ROBOTPKG_ROOT
     robotpkg_vars['SRC']=robotpkg_vars['ROOT']+'/robotpkg'
-    robotpkg_vars['ROOT']=robotpkg_vars['ROOT']+'/install'
+    robotpkg_vars['INSTALL']=robotpkg_vars['ROOT']+'/install'
     robotpkg_vars['DISTFILES']=robotpkg_vars['SRC']+'/distfiles'
     return robotpkg_vars
 

@@ -19,7 +19,11 @@ This will create the directories:
 /integration_tests/robotpkg-test-rc
 ```
 
-*robotpkg-test-rc* should be highlighted because it is mounted over a ram filesystem.
+Creating you ramfs is optional now. It is done by:
+```
+sudo rpkgh_create_ramfs
+```
+Note: *robotpkg-test-rc* should be highlighted because it is mounted over a ram filesystem.
 This is allowing faster access time when compiling.
 Be aware that turn off your computer may make you lost all the data in this directory.
 This problem is addressed in the following steps.
@@ -80,7 +84,7 @@ rpkgh_build_talos_simulation.py
 - [Build the stack to build SoT with talos](tools/rpkgh_build_talos_dev.py)
 - [Remove install and robotpkg directories inside /integration_tests/](tools/rpkgh_clean_integration_dir.py)
 - [Save the install and robotpkg directories inside /integration_tests/ inside archives](tools/rpkgh_save_integration.py)
-The format of the file is
+The format of the file names is
 ```
 /integration_tests/archives/robotpkg_year_month_day.tgz
 /integration_tests/archives/robotpkg_year_month_day.txt

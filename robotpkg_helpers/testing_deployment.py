@@ -355,9 +355,18 @@ class RobotpkgTests:
             if error!=None:
                 for stdout_line in error.splitlines():
                     str_cmp = stdout_line.decode('utf-8')
-                    print(str_cmp)
+                    print("make update confirm:"+str_cmp)
+                    # If there is a problem related 
+                    if str_cmp == "ERROR: Files from unknown package:":
+                        print(self.RED+"Confirm the installation"+self.NC)
+                        output, error=self.execute("make install confirm")
+                        break
         else:
-            self.execute("make install")
+            output,error =self.execute("make install")
+            if error!=None:
+                for stdout_line in error.splitlines():
+                    str_cmp = stdout_line.decode('utf-8')
+                    print(str_cmp)
 
     def handle_package(self,packagename,branchname):
         """Compile and install packagename with branch branchname

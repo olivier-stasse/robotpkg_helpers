@@ -17,3 +17,4 @@ class RobotpkgReleaseCandidate:
     def save(self,filename):
         f=open(filename,'w')
         json.dump(self.description,f)
+        f.close()

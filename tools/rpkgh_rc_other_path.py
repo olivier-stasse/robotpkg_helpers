@@ -10,7 +10,7 @@ print(arch_release_candidates)
 
 robotpkg_vars = build_test_rc_robotpkg_vars()
 dist_files_path=robotpkg_vars['DISTFILES']
-arpgtestrc =RobotpkgTests("/opt/openrobots-frisbourg")
+arpgtestrc =RobotpkgTests("/integration_tests/robotpkg-test-rc/",debug=2)
 
 # Perform the deployment in arpgtestrc
 if arpgtestrc.perform_test_rc(dist_files_path=dist_files_path):

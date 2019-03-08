@@ -5,6 +5,7 @@
 import os
 import re
 from .src_introspection import add_robotpkg_src_introspection
+from .github_workspace import ReportsFromGithub
 
 class RobotpkgLaasWorkspace:
     """ This class creates a Laas workspace environment to have repositories
@@ -49,3 +50,7 @@ class RobotpkgLaasWorkspace:
                     if package.org_name[0]==org_name:
                         print(package.name+':'+package.org_name[0])
             
+    def reading_repos_from_github_for_sot(self):
+        areport_from_gh = ReportsFromGithub()
+        areport_from_gh.reading_repos_from_github_for_sot()
+
