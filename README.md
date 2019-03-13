@@ -92,6 +92,11 @@ The format of the file names is
 The text file record the release of each robotpkg package installed.
 - [Restore the install and robotpkg directories inside /integration_tests/ from a file located in archives](tools/rpkgh_restore_dir.py)
 - [Deployment tests for a given set of packages and specific branches in a specified directory](tools/rpkgh_rc_other_path.py)
+This file read a json file specifying the packages and the branch to build. The file <b>arch_rc.json</b> is an example of such a file:
+```
+[["dynamic-graph-v3", "devel"], ["sot-core-v3", "devel"], ["py-sot-core-v3", "devel"], ["sot-tools-v3","devel"],["py-sot-tools-v3","devel"],["sot-dynamic-pinocchio-v3", "devel"], ["py-sot-dynamic-pin
+occhio-v3", "devel"], ["tsid", "devel"], ["parametric-curves", "devel"], ["sot-torque-control", "devel"], ["sot-talos", "master"]]
+```
 - [Deployment tests using a destfiles directory and a personal fork of robotpkg](tools/rpkgh_distfiles.py)
 - [Generate a dockerfile based on parsing a Makefile using jrl-cmakemodules](tools/rpkgh_gen_dockerfile.py)
 
