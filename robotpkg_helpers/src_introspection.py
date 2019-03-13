@@ -39,9 +39,9 @@ class RobotpkgSrcIntrospection:
         Arguments:
         ROBOTPKG_ROOT_SRC: The directory where the whole robotpkg source is located.
         """
+        self.debug=debug
         self.ROBOTPKG_ROOT_SRC= ROBOTPKG_ROOT_SRC
         self.build_list_of_packages()
-        self.debug=debug
 
     def create_new_pkg_description(self,group,pkg_name,dirname,subgroup=None):
         """ Create a package object.
@@ -50,6 +50,8 @@ class RobotpkgSrcIntrospection:
         pkg_name: Name of the package here the directory in which the package
         is described
         """
+        if self.debug>5:
+            print(dirname + '/' + pkg_name)
         self.package_dict[pkg_name]=RobotpkgPackage(pkg_name,
                                                     dirname + '/' + pkg_name,
                                                     group,subgroup)
@@ -76,8 +78,8 @@ class RobotpkgSrcIntrospection:
                                                         dirname,
                                                         subgroup=asubtwodir)
                         os.chdir(dirname+'/'+asubdir)
-                    else:
-                        self.create_new_pkg_description(adir,asubdir,dirname)
+            else:
+                self.create_new_pkg_description(adir,asubdir,dirname)
             os.chdir(dirname)
 
     def build_list_of_packages(self):
