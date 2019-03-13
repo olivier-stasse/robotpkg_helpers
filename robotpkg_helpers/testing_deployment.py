@@ -352,6 +352,8 @@ class RobotpkgTests:
         # If the installation has already been done
         if os.path.isdir(checkoutdir_pkg_path):
             output, error=self.execute("make update confirm")
+            for line in output.splitlines():
+                print(line.decode('utf-8'))
             if error!=None:
                 for stdout_line in error.splitlines():
                     str_cmp = stdout_line.decode('utf-8')
