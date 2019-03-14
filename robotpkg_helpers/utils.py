@@ -1,5 +1,6 @@
 import os
 import subprocess
+from .analyze_computer import AnalyzeComputer
 
 def execute_capture_output(bashCommand,filename,lenv,debug=0):
     """ Execute baschCommand 
@@ -106,6 +107,9 @@ def init_environment_variables(anObject, ROBOTPKG_ROOT):
     
     Specifies the environment when starting bash commands
     """
+    # Create an object to analyze the computer
+    an_analyze_computer = AnalyzeComputer()
+
     anObject.ROBOTPKG_ROOT = ROBOTPKG_ROOT
     anObject.env = os.environ.copy()
     ROBOTPKG_BASE = anObject.ROBOTPKG_ROOT+'/install'
@@ -114,7 +118,9 @@ def init_environment_variables(anObject, ROBOTPKG_ROOT):
     anObject.env["SHELL"] = "/usr/bin/bash"
     # For binaries
     anObject.env["PATH"] = ROBOTPKG_BASE+'/sbin:' + \
-                       ROBOTPKG_BASE+'/bin:'+anObject.env["PATH"]
+                       ROBOTPKG_BASE+'/bin:'+ \
+                       '/opt/ros/'+an_analyze_computer.ros_distrib + '/bin:' + \
+                       anObject.env["PATH"]
     
     # For libraries
     prev_LD_LIBRARY_PATH=''

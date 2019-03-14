@@ -20,25 +20,27 @@ class RobotpkgTests:
 
         # Add ROBOTPKG_ROOT, ROBOTPKG_ROOT_SRC to self
         add_robotpkg_variables(self,ROBOTPKG_ROOT)
-        
+
         if not hasattr(self,'ROBOTPKG_ROOT_SRC'):
             print('add_robotpkg_variables is not doing what it is suppose to be doing\n')
             sys.exit()
-            
+
         self.init_colors()
-        # Prepare the environment variables to compile with robotpkg 
+
+
+        # Prepare the environment variables to compile with robotpkg
         init_environment_variables(self,self.ROBOTPKG_ROOT)
-        
+
         # Prepare the robotpkg.conf
         self.init_robotpkg_conf_add()
 
         self.debug = debug
         self.ssh_git_openrobots = False
-        
+
     def init_colors(self):
         """ Initialize colors for beautification
-        
-        The following variables are available: 
+
+        The following variables are available:
         REG, GREEN, PURPLE, NC (no color)
         """
         self.RED =  '\033[0;31m'
@@ -120,7 +122,7 @@ class RobotpkgTests:
         if 'JRL_FTP_PASSWD' in env.keys():
             jrl_ftp_passwd = 'JRL_FTP_PASSWD='+env['JRL_FTP_PASSWD']
             self.robotpkg_conf_lines.append(jrl_ftp_passwd)
-            
+
 
     def is_robotpkg_present(self,wip_repository):
         """ Check if there is already a robotpkg directory with wip
@@ -132,12 +134,12 @@ class RobotpkgTests:
         if not os.path.isdir(robotpkg_wip_candidate_dir):
             return False
         return True
-        
+
     def prepare_robotpkg(self,wip_repository):
-        """ 
+        """
         Prepare the robotpkg environment
 
-        Make robotpkg directoriers, clone it with wip, bootstrap and add 
+        Make robotpkg directoriers, clone it with wip, bootstrap and add
         information in the file ${ROBOTPKG_ROOT}/install/etc/robotpkg.conf
         """
         self.make_robotpkg_dirs()
@@ -145,7 +147,7 @@ class RobotpkgTests:
         self.cloning_robotpkg_wip(wip_repository)
         self.bootstrap_robotpkg()
         self.complete_robotpkg_conffile()
-        
+
     def make_robotpkg_dirs(self):
         """Create directories for robotpkg
 
@@ -157,7 +159,7 @@ class RobotpkgTests:
         os.makedirs(dirname,0o777,True)
         dirname=self.ROBOTPKG_ROOT+'/install'
         os.makedirs(dirname,0o777,True)
-        
+
     def cloning_robotpkg_repo(self,dirpath,repo):
         """Clones the repository repo in dirpath """
         os.chdir(dirpath)
@@ -176,19 +178,19 @@ class RobotpkgTests:
             for stdout_line in error.splitlines():
                 str_cmp = stdout_line.decode('utf-8')
                 str2_cmp='fatal: destination path \'robotpkg\' already exists and is not an empty directory.'
-                
+
                 if str_cmp==str2_cmp:
                     print('robotpkg already exists -> update the repository ')
                     outputdata,error = self.execute("git pull origin master:master")
                 else:
                     print(str_cmp)
 
-    def cloning_robotpkg_main(self,):                    
+    def cloning_robotpkg_main(self,):
         dirpath = self.ROBOTPKG_ROOT
         repo = 'https://git.openrobots.org/robots/robotpkg.git'
         print(self.GREEN+'Cloning robotpkg'+self.NC+' in ' + self.ROBOTPKG_ROOT + '\n')
         self.cloning_robotpkg_repo(dirpath,repo)
-        
+
     def cloning_robotpkg_wip(self,wip_repository):
         """Clones the wip robotpkg repository"""
         dirpath=self.ROBOTPKG_ROOT+'/robotpkg'
@@ -197,7 +199,7 @@ class RobotpkgTests:
 
     def bootstrap_robotpkg(self):
         """ bootstrap robotpkg
-        
+
         This method calls:
         bootstrap --prefix=${ROBOTPKG_ROOT}/install
         only if there is no
@@ -221,7 +223,7 @@ class RobotpkgTests:
         """
         os.chdir(self.ROBOTPKG_ROOT+'/install/etc')
         print(self.GREEN+'Adding information to '+self.ROBOTPKG_ROOT+'/install/etc/robotpkg.conf\n')
-        
+
         # Open the file, read it and stores it in file_robotpkg_contents
         file_robotpkgconf = open("robotpkg.conf",'r')
         file_robotpkgconf_contents = file_robotpkgconf.read()
@@ -241,10 +243,10 @@ class RobotpkgTests:
         group = self.robotpkg_src_intro.package_dict[packagename].group
         pathname = self.ROBOTPKG_ROOT+'/robotpkg/'+group+'/'+packagename+'/work.'+hostname
         return pathname
-        
+
     def apply_rpkg_checkout_package(self,packagename,branchname):
         """ Performs a make checkout in packagename directory
-        
+
         packagename: The name of package in which the git clone will be perfomed.
         branchname: The name of the branch used in the repository.
 
@@ -253,7 +255,7 @@ class RobotpkgTests:
         if not packagename in self.robotpkg_src_intro.package_dict.keys():
             print(packagename + " not in robotpkg. Please check the name")
             return False
-        
+
         group = self.robotpkg_src_intro.package_dict[packagename].group
         print(self.GREEN+'Checkout '+ packagename +' in robotpkg/'+group+self.NC+'\n')
         # Checking if we need to clean or not the package
@@ -294,7 +296,7 @@ class RobotpkgTests:
                                 # Give it the name of the bran
                                 self.execute("git checkout -b "+branchname)
                                 directory_to_clean=False
-                                finaldirectory=folder                                
+                                finaldirectory=folder
                             else:
                                 finaldirectory=folder
                                 directory_to_clean=False
@@ -320,7 +322,7 @@ class RobotpkgTests:
         """
         Changes the branch of a git repository in robotpkg.
 
-        The method first detects that the package working directory is 
+        The method first detects that the package working directory is
         really a git repository. Then it performs the branch switch.
         """
         bashcmd='git checkout '+branchname
@@ -346,7 +348,7 @@ class RobotpkgTests:
         group = self.robotpkg_src_intro.package_dict[packagename].group
         os.chdir(self.ROBOTPKG_ROOT+'/robotpkg/'+group+'/'+packagename)
         print(self.GREEN+'Compile '+ packagename +' in robotpkg/'+group+self.NC+'\n')
-        
+
         # Compiling the repository
         checkoutdir_pkg_path=self.build_rpkg_checkoutdir_pkg_path(packagename)
         # If the installation has already been done
@@ -358,7 +360,7 @@ class RobotpkgTests:
                 for stdout_line in error.splitlines():
                     str_cmp = stdout_line.decode('utf-8')
                     print("make update confirm:"+str_cmp)
-                    # If there is a problem related 
+                    # If there is a problem related
                     if str_cmp == "ERROR: Files from unknown package:":
                         print(self.RED+"Confirm the installation"+self.NC)
                         output, error=self.execute("make install confirm")
@@ -372,15 +374,15 @@ class RobotpkgTests:
 
     def handle_package(self,packagename,branchname):
         """Compile and install packagename with branch branchname
-        
+
         First performs the proper make checkout and git operation to get the branch
         Then compile the package with make replace.
         Do not use make update confirm, this install the release version (the tar file).
         """
         if not packagename in self.robotpkg_src_intro.package_dict.keys():
-            print(packagename + " not in robotpkg. Please check the name")           
+            print(packagename + " not in robotpkg. Please check the name")
             return False
-        
+
         if not branchname==None:
             self.apply_rpkg_checkout_package(packagename,branchname)
             self.apply_git_checkout_branch(packagename,branchname)
@@ -396,24 +398,24 @@ class RobotpkgTests:
             print(arch_release_candidates)
             for package_name,branch_name in arch_release_candidates:
                 if not package_name in self.robotpkg_src_intro.package_dict.keys():
-                    print(self.RED + package_name + " not in robotpkg.\nPlease check the name"+self.NC)        
+                    print(self.RED + package_name + " not in robotpkg.\nPlease check the name"+self.NC)
                     return False;
         return True;
 
     def perform_test_rc(self,arch_release_candidates=None,dist_files_path=None,wip_repository=None):
         """Install packages specified by arch_release_candidates using the associated branchnames.
         If available the set of archives in dist_files_path will be used.
-        If specified, then use wip_repository instead of the official robotpkg repository. 
+        If specified, then use wip_repository instead of the official robotpkg repository.
 
         arch_release_candidates: tuple of list [ ('package_name','branch_name','group'), ... ]
         """
-        
+
         if wip_repository==None:
             if self.ssh_git_openrobots==True:
                 wip_repository="ssh://git@git.openrobots.org/robots/robotpkg/robotpkg-wip wip"
             else:
                 wip_repository="https://git.openrobots.org/robots/robotpkg/robotpkg-wip.git wip"
-            
+
         # Create the robotpkg structure.
         self.prepare_robotpkg(wip_repository)
 
@@ -428,7 +430,7 @@ class RobotpkgTests:
 
         # Copy dist files if specified
         self.copy_test_dist_files(dist_files_path)
-            
+
         # Download and install each package
         handling_package_properly_done = True
         if arch_release_candidates != None:
@@ -462,5 +464,3 @@ class RobotpkgTests:
         # Iterating over the list
         for package_name,branch_name in arch_release_candidates:
             checkoutdir_pkg_path=build_rpkg_checkoutdir_pkg_path(self,packagename)
-            
-        
