@@ -77,9 +77,21 @@ def build_test_rc_robotpkg_vars(ROBOTPKG_ROOT=None):
     robotpkg_vars['DISTFILES']=robotpkg_vars['SRC']+'/distfiles'
     return robotpkg_vars
 
-def add_robotpkg_mng_variables(anObject, ROBOTPKG_MNG_ROOT=None):
-    """ This function adds robotpkg_mng_vars to the object based on ROBOTPKG_MNG_ROOT
-    if provided.
+def add_robotpkg_mng_variables(anObject,
+                               ROBOTPKG_MNG_ROOT=None,
+                               sub_ramfs_mnt_pt='robotpkg-test-rc',
+                               sub_arch_dist_files='arch_distfiles',
+                               sub_archives='archives'):
+    """ This function adds robotpkg_mng_vars to the object anObject based on ROBOTPKG_MNG_ROOT
+    if provided. 
+    The keys of the dictionnary are build the following way
+    - 'ROOT' = ROBOTPKG_MNG_ROOT
+    - 'ARCH_DISTFILES' = ROBOTPKG_MNG_ROOT/sub_arch_dist_files
+    - 'RAMFS_MNT_PT' = ROBOTPKG_MNG_ROOT/sub_ramfs_mnt_pt
+    - 'ROBOTPKG_ROOT' = RAMFS_MNT_PT
+    - 'ARCHIVES' = ROBOTPKG_MNG_ROOT/sub_archives
+    - 'ROBOTPKG_BASE' = ROBOTPKG_MNG_ROOT/install
+    - 'ROBOTPKG_SRC' = ROBOTPKG_MNG_ROOT/robotpkg
 
     All of this is done for intermediate build when working on release candidates
     and speed up deployment tests.
@@ -94,10 +106,10 @@ def add_robotpkg_mng_variables(anObject, ROBOTPKG_MNG_ROOT=None):
 
     anObject.robotpkg_mng_vars={}
     anObject.robotpkg_mng_vars['ROOT'] = anObject.ROBOTPKG_MNG_ROOT
-    anObject.robotpkg_mng_vars['ARCH_DISTFILES']=anObject.robotpkg_mng_vars['ROOT']+'/arch_distfiles'
-    anObject.robotpkg_mng_vars['RAMFS_MNT_PT']=anObject.robotpkg_mng_vars['ROOT']+'/robotpkg-test-rc'
+    anObject.robotpkg_mng_vars['ARCH_DISTFILES']=anObject.robotpkg_mng_vars['ROOT']+'/'+sub_arch_dist_files
+    anObject.robotpkg_mng_vars['RAMFS_MNT_PT']=anObject.robotpkg_mng_vars['ROOT']+'/'+sub_ramfs_mnt_pt
     anObject.robotpkg_mng_vars['ROBOTPKG_ROOT']=anObject.robotpkg_mng_vars['RAMFS_MNT_PT']
-    anObject.robotpkg_mng_vars['ARCHIVES']=anObject.robotpkg_mng_vars['ROOT']+'/archives'
+    anObject.robotpkg_mng_vars['ARCHIVES']=anObject.robotpkg_mng_vars['ROOT']+'/'+sub_archives
     anObject.robotpkg_mng_vars['ROBOTPKG_BASE']=anObject.robotpkg_mng_vars['RAMFS_MNT_PT']+'/install'
     anObject.robotpkg_mng_vars['ROBOTPKG_SRC']=anObject.robotpkg_mng_vars['RAMFS_MNT_PT']+'/robotpkg'
 
