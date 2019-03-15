@@ -25,7 +25,10 @@ class HandlingImgs:
     and the one deployed for integration test.
     """
     
-    def __init__(self,ramfs_dir=None,ROBOTPKG_MNG_ROOT=None,debug=0):
+    def __init__(self,ramfs_dir=None,ROBOTPKG_MNG_ROOT=None,debug=0,
+                 sub_ramfs_mnt_pt='robotpkg-test-rc',
+                 sub_arch_dist_files='arch_distfiles',
+                 sub_archives='archives'):
 
         if ramfs_dir==None:
             ramfs_dir='/integration_tests/robotpkg-test-rc'
@@ -33,7 +36,11 @@ class HandlingImgs:
         self.ramfs_dir=ramfs_dir
 
         # Populate the object with management field
-        add_robotpkg_mng_variables(self)
+        add_robotpkg_mng_variables(self,
+                                   ROBOTPKG_MNG_ROOT=ROBOTPKG_MNG_ROOT,
+                                   sub_ramfs_mnt_pt=sub_ramfs_mnt_pt,
+                                   sub_arch_dist_files = sub_arch_dist_files,
+                                   sub_archives = sub_archives )
 
         # Populate the object with field ROBOTPKG_ROOT
         add_robotpkg_variables(self,self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
