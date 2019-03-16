@@ -18,16 +18,16 @@ class RpkghRestoreDir():
                             help='File to uncompress')
 
         parser.add_argument("-m", "--ramfsmntpt", dest="sub_ramfsmntpt", action="store",
-                            default="robotpkg-test-rc",nargs='?',
-                            help='Subdirectory in ROBOTPKG_MNG_ROOT where to uncompress ')
+                            default="robotpkg-test-rc",nargs=1,
+                            help='Subdirectory in ROBOTPKG_MNG_ROOT where to uncompress \n(default:robotpkg-test-rc)')
 
         parser.add_argument("-r", "--rpkgmngroot", dest="rpkgmngroot", action="store",
-                            default="/integration_tests", nargs='?',
+                            default="/integration_tests", nargs=1,
                             help='Directory corresponding to ROBOTPKG_MNG_ROOT \n(default: /integration_tests)')
 
         parser.add_argument("-a", "--archives", dest='sub_archives', action='store',
-                            default='archives',nargs='?',
-                            help='Subdirectory in ROBOTPKG_MNG_ROOT where archives are stored')
+                            default='archives',nargs=1,
+                            help='Subdirectory in ROBOTPKG_MNG_ROOT where archives are stored\n (default: archives)')
 
         parser.parse_args(namespace=self)
 
