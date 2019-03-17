@@ -33,9 +33,9 @@ class RpkghRestoreDir():
 
     def restore_dir(self,filename):
         aHandlingImgs = HandlingImgs(
-            ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
-            sub_ramfs_mnt_pt=self.sub_ramfsmntpt,
-            sub_archives=self.sub_archives)
+            ROBOTPKG_MNG_ROOT=self.rpkgmngroot[0],
+            sub_ramfs_mnt_pt=self.sub_ramfsmntpt[0],
+            sub_archives=self.sub_archives[0])
 
         aHandlingImgs.restore_from_backup_dir(tar_file_name=filename)
 
