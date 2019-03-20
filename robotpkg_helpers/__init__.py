@@ -5,5 +5,6 @@ from .utils import execute,execute_call,build_test_rc_robotpkg_vars
 from .handling_imgs import HandlingImgs
 from .package_release_candidate import RobotpkgPkgReleaseCandidate
 from .analyze_computer import AnalyzeComputer
+from .package_release_candidate import RobotpkgPkgReleaseCandidate
 from .architecture_release_candidate import RobotpkgArchitectureReleaseCandidate
 

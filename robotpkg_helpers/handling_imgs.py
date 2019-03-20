@@ -4,7 +4,7 @@
 
 import os
 import datetime
-        
+
 from .utils import execute,execute_call,add_robotpkg_mng_variables
 from .utils import init_environment_variables,execute_capture_output
 
@@ -24,16 +24,16 @@ class HandlingImgs:
     Caution: When using a ramdisk you may lose data if you do not decouple your source code
     and the one deployed for integration test.
     ramfs_dir :          Full path to ramfs_dir (default: None)
-    ROBOTPKG_MNG_ROOT:   Full path to the root integration directory 
+    ROBOTPKG_MNG_ROOT:   Full path to the root integration directory
                          (default: '/integration_tests')
-    sub_ramfs_mnt_pt:    Subdirectory inside ROBOTPKG_MNT_ROOT 
+    sub_ramfs_mnt_pt:    Subdirectory inside ROBOTPKG_MNT_ROOT
                          (default: 'robotpkg-test-rc')
-    sub_arch_dist_files: Subdirectory where to store packages releases 
+    sub_arch_dist_files: Subdirectory where to store packages releases
                          (default: 'arch_distfiles')
-    archives:            Subdirectory where to store install/robotpkg sub directories 
+    archives:            Subdirectory where to store install/robotpkg sub directories
                          (default: 'archives')
     """
-    
+
     def __init__(self,
                  ramfs_dir=None,
                  ROBOTPKG_MNG_ROOT='/integration_tests',debug=0,
@@ -41,9 +41,14 @@ class HandlingImgs:
                  sub_arch_dist_files='arch_distfiles',
                  sub_archives='archives'):
 
+        self.RED =  '\033[0;31m'
+        self.GREEN= '\033[0;32m'
+        self.PURPLE='\033[0;35m'
+        self.NC =   '\033[0m'
+
         if ramfs_dir==None:
             ramfs_dir=ROBOTPKG_MNG_ROOT+'/'+sub_ramfs_mnt_pt
-            
+
         # Initialize ramfs_dir
         self.ramfs_dir=ramfs_dir
 
@@ -60,7 +65,7 @@ class HandlingImgs:
 
         # Populate the object with the robotpkg environment variables
         init_environment_variables(self,self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
-        
+
         # Extract the user name even in case of sudo
         self.user_name = self.extract_user_name()
 
@@ -92,22 +97,33 @@ class HandlingImgs:
         NOTE: Launching this method requires to have sudo access.
         """
         print("create_ramfs_dir :"+self.ramfs_dir)
-        
+
         # Test if the mount point exits and creates it if not
         if not os.path.isdir(self.ramfs_dir):
             print("Directory "+self.ramfs_dir+" does not exists.")
             os.makedirs(self.ramfs_dir,0o777,True)
             print("Directory "+self.ramfs_dir+" created.")
-            
+
         # Mount RAMS FS at the ramfs dir if it does not already exists
         if not os.path.ismount(self.ramfs_dir):
             bashCmd="mount -t tmpfs -o size=4096m new_ram_disk "+self.ramfs_dir
-            execute(bashCmd,self.env,self.debug)
+            outputdata,error = execute(bashCmd,self.env,self.debug)
+            if outputdata!=None:
+                for stdout_line in outputdata.splitlines():
+                    str_cmp = stdout_line.decode('utf-8')
+                    print(stdout_line)
+            if error!=None:
+                for stderr_line in error.splitlines():
+                    str_cmp = stderr_line.decode('utf-8')
+                    print(self.RED+"ERR:"+str_cmp+self.NC)
+        else:
+            print(self.ramfs_dir + " already mounted")
 
         # checking the ram FS mounting point directory
         bashCmd="chown "+ self.user_name + '.' + \
-            self.group_name + ' ' + self.ramfs_dir+ " " 
-        execute(bashCmd,self.env,self.debug)
+            self.group_name + ' ' + self.ramfs_dir+ " "
+        outputdata,error = execute(bashCmd,self.env,self.debug)
+
 
     def prepare_mng_dirs(self):
         """ Create the directories for managing integration tests
@@ -148,12 +164,12 @@ class HandlingImgs:
         str_base_name = os.path.basename(tar_file_name)
         str_base_name_root,str_base_name_ext = os.path.splitext(str_base_name)
         description_file_name = backup_dir+ '/' + str_base_name_root +'.txt'
-        
+
         bashCmd=self.robotpkg_mng_vars['ROBOTPKG_BASE']+ \
            "/sbin/robotpkg_info "
         print(bashCmd)
         execute_capture_output(bashCmd,description_file_name,self.env,self.debug)
-    
+
     def backup_rpkg_dir(self,backup_dir=None,tar_file_name=None):
         """ Backup the build directory in a specific backup directory
         """
@@ -165,22 +181,22 @@ class HandlingImgs:
 
         if tar_file_name==None:
             tar_file_name = self.build_tar_file_name(backup_dir)
-          
+
         # Getting the name of the root directory
         basename_rpkg_root_dir=os.path.basename(self.ROBOTPKG_ROOT)
 
-        bashCmd="tar -czvf "+ tar_file_name + ' ' + basename_rpkg_root_dir
+        bashCmd="tar -czf "+ tar_file_name + ' ' + basename_rpkg_root_dir
         print(bashCmd)
 
         # Going inside ROBOTPKG_MNG_ROOT
         os.chdir(self.ROBOTPKG_MNG_ROOT)
-        
+
         # Creating the tarball.
         execute(bashCmd,self.env,self.debug)
 
         # Save description file
         self.build_description_file(tar_file_name)
-        
+
         # Going back to where we were
         os.chdir(current_path)
 
@@ -196,23 +212,35 @@ class HandlingImgs:
         if tar_file_name==None:
             print("You should specified the tar_file_name")
             return
-        
+
         # Going inside ROBOTPKG_MNG_ROOT
         os.chdir(self.ROBOTPKG_MNG_ROOT)
         print("Going into "+self.ROBOTPKG_MNG_ROOT)
 
-        # Creating the tarball.
-        bashCmd="tar -xzvf "+ backup_dir+'/'+tar_file_name + ' --directory ' + self.robotpkg_mng_vars['ROOT']
+        # Extracting from the tarball.
+        bashCmd="tar -xzvf "+ backup_dir+'/'+tar_file_name +\
+            ' --directory ' + self.robotpkg_mng_vars['ROOT']
         print("Executing :\n"+bashCmd)
-        execute(bashCmd,self.env,self.debug)
-        
+        outputdata,error = execute(bashCmd,self.env,self.debug)
+        if error!=None:
+            firstLine= True
+            for stdout_line in error.splitlines():
+                if firstLine:
+                    print(self.RED+"Error:")
+                    firstLine= False
+                print(self.RED+stdout_line.decode('utf-8')+self.NC)
+
+        if outputdata!=None:
+            for stdout_line in outputdata.splitlines():
+                print(stdout_line.decode('utf-8'))
+
         # Going back to where we were
         os.chdir(current_path)
-        
+
     def extract_user_name(self):
         """ Extraction the username
         This creates the field user_name
-        """         
+        """
         bashCmd="logname"
         output_data,error=execute(bashCmd,self.env,debug=0)
         nb_line=0
@@ -221,22 +249,22 @@ class HandlingImgs:
                 user_name=stdout_line.decode('utf-8')
                 break
             nb_line=nb_line+1
-            
+
         return user_name
 
     def extract_group_name(self):
         """ Extraction the main group of the user
         This creates the field group_name
-        """ 
+        """
         if not hasattr(self,'user_name'):
             self.extract_user_name()
         else:
             if self.user_name==None:
                 self.extract_user_name()
-                
+
         bashCmd="groups "+self.user_name
         output_data,error =execute(bashCmd,self.env,debug=0)
-        
+
         group_name=''
         nb_line=0
         for stdout_line in output_data.splitlines():
@@ -247,7 +275,7 @@ class HandlingImgs:
                 group_name=group_names[2]
                 break
             nb_line=nb_line+1
-            
+
         return group_name
 
     def clean_integration_directory(self):
@@ -271,7 +299,6 @@ class HandlingImgs:
         res=input('Execute ? [y/n]')
         if res=='y':
             output_data=execute(bashCmd,self.env,debug=0)
-        
+
         # Going back to where we were
         os.chdir(current_path)
-        

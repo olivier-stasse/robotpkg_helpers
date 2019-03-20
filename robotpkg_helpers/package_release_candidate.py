@@ -5,6 +5,13 @@
 import os
 import json
 
+def display_description(description):
+    print("name:",description['name'])
+    print("git_repo:",description['git_repo'])
+    print("branch:",description['branch'])
+    print("commit:",description['commit'])
+    print("tag:",description['tag'])
+
 class RobotpkgPkgReleaseCandidate:
 
     def __init__(self, name=None,
@@ -15,6 +22,9 @@ class RobotpkgPkgReleaseCandidate:
         self.description['branch']=branch
         self.description['tag']=tag
         self.description['name']=name
+
+    def display(self,indent_spaces=0):
+        display_description(self.description)
 
     def save(self,filename):
         f=open(filename,'w')

@@ -2,6 +2,7 @@ import os
 import sys
 import json
 from .package_release_candidate import RobotpkgPkgReleaseCandidate
+from .package_release_candidate import display_description
 
 class RobotpkgArchitectureReleaseCandidate:
 
@@ -24,15 +25,23 @@ class RobotpkgArchitectureReleaseCandidate:
             self.data['repo_robotpkg_wip'] = \
                 'https://git.openrobots.org/robots/robotpkg/robotpkg-wip.git'
         self.data['rc_pkgs']={}
-        aRobotpkgPkgReleaseCandidate = \
-            RobotpkgPkgReleaseCandidate(git_repo='https://github.com/stack-of-tasks/sot-core.git',
-                                        branch='devel',
-                                        name='sot-core')
-        self.data['rc_pkgs']['sot-core']=aRobotpkgPkgReleaseCandidate.description
-            
+        self.data['robotpkg_mng_root']='/integration_tests'
+        self.data['ramfs_mnt_pt']='robotpkg-test-rc'
+        self.data['arch_dist_files']='arch_distfiles'
+        self.data['archives']='archives'
+
+    def display(self):
+        print("git url - robotpkg:")
+        print("  "+self.data['repo_robotpkg_main'])
+        print("git url - robotpkg wip:")
+        print("  "+self.data['repo_robotpkg_wip'])
+        for name,desc_package in self.data['rc_pkgs'].items():
+            display_description(desc_package)
+        
     def load_rc(self,filename):
-        if os.path.is_file(filename):
-            self.data = json.load(filename)
+        if os.path.isfile(filename):
+            with open(filename) as json_filename:
+                self.data = json.load(json_filename)
         else:
             print(filename + " does not exists")
         
