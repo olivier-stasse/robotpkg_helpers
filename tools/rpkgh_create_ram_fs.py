@@ -25,8 +25,8 @@ class RpkghCreateRamfsDir():
 
     def create_ramfs_dir(self):
         aHandlingImgs = HandlingImgs(
-            ROBOTPKG_MNG_ROOT=self.rpkgmngroot[0],
-            sub_ramfs_mnt_pt=self.sub_ramfsmntpt[0])
+            ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
+            sub_ramfs_mnt_pt=self.sub_ramfsmntpt)
 
         aHandlingImgs.create_ramfs_dir()
 
