@@ -19,7 +19,13 @@
 		     "branch": "devel",
 		     "commit": null,
 		     "git_repo": "https://github.com/stack-of-tasks/sot-core.git",
+		     "tag": null},
+  "roscontrol-sot": {"name": "roscontrol-sot",
+		     "branch": "devel",
+		     "commit": null,
+		     "git_repo": "https://github.com/stack-of-tasks/roscontrol_sot.git",
 		     "tag": null}
+  
  },
  "ssh_git_openrobots": false,
  "targetpkg": "talos-dev"
