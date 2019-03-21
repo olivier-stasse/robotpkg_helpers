@@ -24,7 +24,15 @@ class RobotpkghLogging:
         self.f_stdout.flush()
         self.f_error.flush()
         return outputdata,error
-        
+
+    def execute_call(self,bashCmd,lenv,debug):
+        outputdata,error = execute_call(bashCmd,lenv,debug)
+        self.f_stdout.write(outputdata)
+        self.f_error.write(error)
+        self.f_stdout.flush()
+        self.f_error.flush()
+        return outputdata,error
+
     def __del__(self):
         if hasattr(self,'f_stdout'):
             self.f_stdout.close()
