@@ -58,6 +58,15 @@ class RobotpkgTests:
     def execute_call(self,bashCommand):
         return self.logger.execute_call(bashCommand,self.debug)
 
+    def add_robotpkg_conf_pkg_info(self,arch_release_candidate):
+        """ This method add the repository for each package listed in robotpkg.conf
+        """
+        for package_name,package_rc in arch_release_candidate.data['rc_pkgs'].items():
+            if 'git_repo' in package_rc.keys():
+                pkg_repo_str = 'REPOSITORY.'+package_name+'=git '+package_rc['git_repo']
+            self.robotpkg_conf_lines.append(pkg_repo_str)
+            
+
     def init_robotpkg_conf_add(self):
         self.robotpkg_conf_lines = [
             'ACCEPTABLE_LICENSES+=openhrp-grx-license',
@@ -152,6 +161,7 @@ class RobotpkgTests:
         self.cloning_robotpkg_main(main_rpkg_repository)
         self.cloning_robotpkg_wip(wip_rpkg_repository)
         self.bootstrap_robotpkg()
+        self.add_robotpkg_conf_pkg_info(arch_release_candidate)
         self.complete_robotpkg_conffile()
 
     def make_robotpkg_dirs(self):
@@ -383,12 +393,8 @@ class RobotpkgTests:
                     str_cmp = stdout_line.decode('utf-8')
                     print(str_cmp)
 
-    def handle_package(self,package_name,package_rc):
-        """Compile and install packagename with branch branchname
-
-        First performs the proper make checkout and git operation to get the branch
-        Then compile the package with make replace.
-        Do not use make update confirm, this install the release version (the tar file).
+    def prepare_package(self,package_name,package_rc):
+        """ Performs the proper make checkout and git operation to get the branch
         """
         if not package_name in self.robotpkg_src_intro.package_dict.keys():
             print(package_name + " not in robotpkg. Please check the name")
@@ -397,6 +403,15 @@ class RobotpkgTests:
         if not package_rc==None:
             self.apply_rpkg_checkout_package(package_name,package_rc)
             self.apply_git_checkout_branch(package_name,package_rc['branch'])
+        return True
+            
+    def handle_package(self,package_name,package_rc):
+        """Compile and install packagename with branch branchname
+
+        Compile the package with make replace.
+        Do not use make update confirm, this install the release version (the tar file).
+
+        """
         self.compile_package(package_name)
         return True
 
@@ -442,6 +457,10 @@ class RobotpkgTests:
         # Download and install each package
         handling_package_properly_done = True
         if arch_release_candidates != None:
+            for package_name,package_rc in arch_release_candidates.data['rc_pkgs'].items():
+                if not self.prepare_package(package_name,package_rc):
+                    handling_package_properly_done=False
+
             for package_name,package_rc in arch_release_candidates.data['rc_pkgs'].items():
                 if not self.handle_package(package_name,package_rc):
                     handling_package_properly_done=False

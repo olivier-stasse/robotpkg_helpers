@@ -29,12 +29,13 @@ Be aware that turn off your computer may make you lost all the data in this dire
 This problem is addressed in the following steps.
 
 ### Deploy a first application
+Going into the tools directory and use:
 ```
-rpkgh_build_talos_simpulation.py
+./rpkgh_build_arch_rc.py ./arch_test_rc.json
 ```
 
 This will build a complete installation of the packages needed to simulate the TALOS robot.
-It however computes only the PAL robotics packages, the standard ROS packages are assumed to be installed previously.
+It however computes only the PAL robotics packages, the standard ROS packages are assumed to be installed.
 The robotpkg sources are located in:
 ```
 /integration_tests/robotpkg-test-rc/robotpkg
@@ -77,11 +78,6 @@ Set of python scripts to perform:
 ```
 sudo rpkgh_prepare_integration_dirs.py
 ```
-- [Build the stack to make talos simulation](tools/rpkgh_build_talos_simulation.py)
-```
-rpkgh_build_talos_simulation.py
-```
-- [Build the stack to build SoT with talos](tools/rpkgh_build_talos_dev.py)
 - [Remove install and robotpkg directories inside /integration_tests/](tools/rpkgh_clean_integration_dir.py)
 - [Save the install and robotpkg directories inside /integration_tests/ inside archives](tools/rpkgh_save_integration.py)
 The format of the file names is
@@ -99,6 +95,54 @@ occhio-v3", "devel"], ["tsid", "devel"], ["parametric-curves", "devel"], ["sot-t
 ```
 - [Deployment tests using a destfiles directory and a personal fork of robotpkg](tools/rpkgh_distfiles.py)
 - [Generate a dockerfile based on parsing a Makefile using jrl-cmakemodules](tools/rpkgh_gen_dockerfile.py)
+
+## JSON format
+
+An example of release architecture to be tested and described using JSON is present in the tools directory:
+[arch_test_rc.json](tools/arch_test_rc.json)
+
+### Main fields
+```
+{"arch_dist_files": "arch_distfiles",
+ "archives": "archives",
+ "ramfs_mnt_pt": "robotpkg-test-rc", 
+ "repo_robotpkg_wip": "https://git.openrobots.org/robots/robotpkg/robotpkg-wip.git",
+ "repo_robotpkg_main": "https://git.openrobots.org/robots/robotpkg.git",
+ "robotpkg_mng_root": "/integration_tests", 
+ "rc_pkgs":
+```
+
+ - The field *arch_dist_files* tells where to store the tar ball of packages release.
+They can be store here to avoid having to download them at each test.
+ - The field *ramfs_mnt_pt* indicates where the pair install/robotpkg is located. It indicates
+where a self-contained development environment is deployed.
+ - The field *archives* stores the tar ball of the pair install/robotpkg
+ - The field *repo_robotpkg_main* indicates the robotpkg repository to use. 
+It is useful when you need to have a version of robotpkg slightly modify for your integration test.
+ - The field *repo_robotpkg_wip* indicates the wip robotpkg repository to use.
+ - The field *robotpkg_mng_root* indicates the repository where you can managed several integration tests.
+ - The field *rc_pkgs* indicates the packages for which you need a special treatment.
+ - The field *ssh_git_openrobots* indicates if ssh should be used for authentification when accessing the repositories when the choice
+is possible. Currently this applies only to repo_robopkg_wip and repo_robotpkg_main.
+As this is clearly indicated in the repo URL, it is likeley that this option will disappear.
+ - The field *targetpkg* indicates to robotpkg_helper which package to compile.
+
+### A package
+```
+ "rc_pkgs":
+ {"dynamic-graph-v3": {"name": "dynamic-graph-v3",
+		       "branch": "devel",
+		       "commit": null,
+		       "git_repo": "https://github.com/stack-of-tasks/dynamic-graph.git",
+		       "tag": null},
+```
+A package inside the dictionnary *rc_pkgs* is a python dictionnary with the following supported fields:
+
+ - *name*: The name of the robotpkg package
+ - *branch*: The name of the branch you want to pull
+ - *commit*: Not yet supported
+ - *git_repo*: The name of the repository you want to pull your branch
+ - *tag*: Not yet supported
 
 ## robotpkg_helpers module
 
