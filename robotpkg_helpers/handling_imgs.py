@@ -107,7 +107,7 @@ class HandlingImgs:
         # Mount RAMS FS at the ramfs dir if it does not already exists
         if not os.path.ismount(self.ramfs_dir):
             bashCmd="mount -t tmpfs -o size=4096m new_ram_disk "+self.ramfs_dir
-            outputdata,error = execute(bashCmd,self.env,self.debug)
+            outputdata,error,p_status = execute(bashCmd,self.env,self.debug)
             if outputdata!=None:
                 for stdout_line in outputdata.splitlines():
                     str_cmp = stdout_line.decode('utf-8')
@@ -122,7 +122,7 @@ class HandlingImgs:
         # checking the ram FS mounting point directory
         bashCmd="chown "+ self.user_name + '.' + \
             self.group_name + ' ' + self.ramfs_dir+ " "
-        outputdata,error = execute(bashCmd,self.env,self.debug)
+        outputdata,error,output_stattus = execute(bashCmd,self.env,self.debug)
 
 
     def prepare_mng_dirs(self):
@@ -221,7 +221,7 @@ class HandlingImgs:
         bashCmd="tar -xzvf "+ backup_dir+'/'+tar_file_name +\
             ' --directory ' + self.robotpkg_mng_vars['ROOT']
         print("Executing :\n"+bashCmd)
-        outputdata,error = execute(bashCmd,self.env,self.debug)
+        outputdata,error,p_status = execute(bashCmd,self.env,self.debug)
         if error!=None:
             firstLine= True
             for stdout_line in error.splitlines():
