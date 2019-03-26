@@ -1,8 +1,9 @@
 import os
 import re
 import json
+import sys
 from .package import RobotpkgPackage
-from .utils import build_test_rc_robotpkg_vars
+from .utils import build_test_rc_robotpkg_vars, add_colors
 
 def add_robotpkg_variables(anObject,ROBOTPKG_ROOT=None):
     """ This function adds ROBOTPKG_ROOT, ROBOTPKG_ROOT_SRC and robotpkg_src_intro
@@ -18,6 +19,7 @@ def add_robotpkg_variables(anObject,ROBOTPKG_ROOT=None):
         anObject.ROBOTPKG_ROOT=ROBOTPKG_ROOT
 
     anObject.ROBOTPKG_ROOT_SRC=anObject.ROBOTPKG_ROOT + '/robotpkg'
+    anObject.ROBOTPKG_BASE=anObject.ROBOTPKG_ROOT + '/install'
 
 def add_robotpkg_src_introspection(anObject,ROBOTPKG_ROOT=None):
     if hasattr(anObject,'robotpkg_src_intro'):
@@ -39,10 +41,11 @@ class RobotpkgSrcIntrospection:
         Arguments:
         ROBOTPKG_ROOT_SRC: The directory where the whole robotpkg source is located.
         """
+        add_colors(self)
         self.debug=debug
         self.ROBOTPKG_ROOT_SRC= ROBOTPKG_ROOT_SRC
         self.build_list_of_packages()
-
+        
     def create_new_pkg_description(self,group,pkg_name,dirname,subgroup=None):
         """ Create a package object.
         group: Given by the directory in which is the package

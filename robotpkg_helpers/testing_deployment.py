@@ -4,14 +4,17 @@ import sys
 from pathlib import Path
 import socket
 
-from .utils import execute_call,init_environment_variables
+from .utils import execute_call,init_environment_variables,add_colors
 from .src_introspection import RobotpkgPackage,RobotpkgSrcIntrospection
 from .src_introspection import add_robotpkg_variables,add_robotpkg_src_introspection
 from .logging import RobotpkghLogging
 
 class RobotpkgTests:
 
-    def __init__(self,ROBOTPKG_ROOT=None,debug=0):
+    def __init__(self,
+                 ROBOTPKG_ROOT=None,
+                 debug=0,
+                 ROBOTPKG_MNG_ROOT=None):
         """ Install and compile a robotpkg infrastructure
 
         Arguments:
@@ -25,12 +28,17 @@ class RobotpkgTests:
         # Add ROBOTPKG_ROOT, ROBOTPKG_ROOT_SRC to self
         add_robotpkg_variables(self,ROBOTPKG_ROOT)
 
+        # Set ROBOTPKG_MNG_ROOT
+        if ROBOTPKG_MNG_ROOT!=None:
+            self.ROBOTPKG_MNG_ROOT=ROBOTPKG_MNG_ROOT
+        else:
+            self.ROBOTPKG_MNG_ROOT=ROBOTPKG_ROOT+'/..'
+
         if not hasattr(self,'ROBOTPKG_ROOT_SRC'):
             print('add_robotpkg_variables is not doing what it is suppose to be doing\n')
             sys.exit()
 
-        self.init_colors()
-
+        add_colors(self)
 
         # Prepare the environment variables to compile with robotpkg
         init_environment_variables(self,self.ROBOTPKG_ROOT)
@@ -41,16 +49,6 @@ class RobotpkgTests:
         self.debug = debug
         self.ssh_git_openrobots = False
 
-    def init_colors(self):
-        """ Initialize colors for beautification
-
-        The following variables are available:
-        REG, GREEN, PURPLE, NC (no color)
-        """
-        self.RED =  '\033[0;31m'
-        self.GREEN= '\033[0;32m'
-        self.PURPLE='\033[0;35m'
-        self.NC =   '\033[0m'
 
     def execute(self,bashCommand):
         return self.logger.execute(bashCommand,self.env,self.debug)
@@ -63,9 +61,9 @@ class RobotpkgTests:
         """
         for package_name,package_rc in arch_release_candidate.data['rc_pkgs'].items():
             if 'git_repo' in package_rc.keys():
-                pkg_repo_str = 'REPOSITORY.'+package_name+'=git '+package_rc['git_repo']
+                pkg_repo_str = 'REPOSITORY.'+package_rc['name']+'=git '+package_rc['git_repo']
             self.robotpkg_conf_lines.append(pkg_repo_str)
-            
+
 
     def init_robotpkg_conf_add(self):
         self.robotpkg_conf_lines = [
@@ -77,8 +75,8 @@ class RobotpkgTests:
             'PREFER_ALTERNATIVE.c++-compiler=ccache-g++ g++',
             '# By default, cache will save files in $HOME/.cccache.',
             '# With NFS, this can be a bit slow. The next line make',
-            '# ccache save files in ${ROBOTPKG_ROOT}/install/.ccache',
-            'HOME.env='+self.ROBOTPKG_ROOT+'/install',
+            '# ccache save files in ${ROBOTPKG_MNG_ROOT}/.ccache',
+            'HOME.env='+self.ROBOTPKG_MNG_ROOT+'/',
             'PREFER.gnupg=system',
             'PREFER.urdfdom=system',
             'PREFER.urdfdom-headers=system',
@@ -182,7 +180,7 @@ class RobotpkgTests:
 
         ldebug = self.debug
         self.debug=0
-        outputdata,error = self.execute("git clone "+repo)
+        outputdata,error,p_status = self.execute("git clone "+repo)
         self.debug=ldebug
 
         if outputdata!=None:
@@ -197,7 +195,7 @@ class RobotpkgTests:
 
                 if str_cmp==str2_cmp:
                     print('robotpkg already exists -> update the repository ')
-                    outputdata,error = self.execute("git pull origin master:master")
+                    outputdata,error,p_status = self.execute("git pull origin master:master")
                 else:
                     print(str_cmp)
 
@@ -306,9 +304,9 @@ class RobotpkgTests:
                         print('Git folder found:'+git_folder)
                     # Now that we detected a git folder
                     # Check the branch
-                    outputdata,error =self.execute("git symbolic-ref --short -q HEAD")
-                    if outputdata != None:
-                        for stdout_line in outputdata.splitlines():
+                    stdOutput,errOutput,p_status =self.execute("git symbolic-ref --short -q HEAD")
+                    if stdOutput != None:
+                        for stdout_line in stdOutput.splitlines():
                             lstr = str(stdout_line.decode('utf-8'))
                             if lstr != branchname:
                                 print(self.RED+' Wrong branch name: '+lstr+' instead of '+branchname+self.NC)
@@ -316,6 +314,7 @@ class RobotpkgTests:
                                 self.execute("git checkout -b remotes/origin/"+branchname)
                                 # Give it the name of the branch
                                 self.execute("git checkout -b "+branchname)
+                                self.execute("git submodule update")
                                 directory_to_clean=False
                                 finaldirectory=folder
                             else:
@@ -346,9 +345,6 @@ class RobotpkgTests:
         The method first detects that the package working directory is
         really a git repository. Then it performs the branch switch.
         """
-        bashcmd='git checkout '+branchname
-        if self.debug>3:
-            print(bashcmd)
         checkoutdir_pkg_path=self.build_rpkg_checkoutdir_pkg_path(packagename)
         if self.debug>3:
             print(checkoutdir_pkg_path)
@@ -359,8 +355,30 @@ class RobotpkgTests:
            os.chdir(folder)
            git_folder=folder+'/.git'
            if os.path.isdir(git_folder):
+               bashcmd='git checkout '+branchname
+               if self.debug>3:
+                   print(bashcmd)
+               self.execute(bashcmd)
+               bashcmd='git submodule update'
+               if self.debug>3:
+                   print(bashcmd)
                self.execute(bashcmd)
 
+
+    def update_compile_package(self, packagename):
+        stdOutput, errOutput,p_status=self.execute("make update confirm")
+        for line in stdOutput.splitlines():
+            print(line.decode('utf-8'))
+        if errOutput!=None:
+            for stdout_line in errOutput.splitlines():
+                str_cmp = stdout_line.decode('utf-8')
+                print("make update confirm:"+str_cmp)
+
+                # If there is a problem related
+                if str_cmp == "ERROR: Files from unknown package:":
+                    print(self.RED+"Confirm the installation"+self.NC)
+                    stdOutput, errOutput,p_status=self.execute("make install confirm")
+                    break
 
     def compile_package(self,packagename):
         """ Performs make replace confirm in package working directory
@@ -373,25 +391,22 @@ class RobotpkgTests:
         # Compiling the repository
         checkoutdir_pkg_path=self.build_rpkg_checkoutdir_pkg_path(packagename)
         # If the installation has already been done
-        if os.path.isdir(checkoutdir_pkg_path):
-            output, error=self.execute("make update confirm")
-            for line in output.splitlines():
-                print(line.decode('utf-8'))
-            if error!=None:
-                for stdout_line in error.splitlines():
-                    str_cmp = stdout_line.decode('utf-8')
-                    print("make update confirm:"+str_cmp)
-                    # If there is a problem related
-                    if str_cmp == "ERROR: Files from unknown package:":
-                        print(self.RED+"Confirm the installation"+self.NC)
-                        output, error=self.execute("make install confirm")
-                        break
+        if self.robotpkg_src_intro.package_dict[packagename].is_rpkg_installed(self.ROBOTPKG_BASE,
+                                                                               self.env):
+            # do nothing for now
+            # self.update_compile_package(packagename)
+            print("Do nothing")
         else:
-            output,error =self.execute("make install")
-            if error!=None:
-                for stdout_line in error.splitlines():
+            stdOutput,errOutput,p_status =self.execute("make install")
+            if errOutput!=None:
+                line =0
+                for stdout_line in errOutput.splitlines():
                     str_cmp = stdout_line.decode('utf-8')
                     print(str_cmp)
+                    if line==2:
+                        if str_cmp=="ERROR: overwrite already installed files.":
+                            print("Error state: overwrite_files")
+
 
     def prepare_package(self,package_name,package_rc):
         """ Performs the proper make checkout and git operation to get the branch
@@ -404,7 +419,7 @@ class RobotpkgTests:
             self.apply_rpkg_checkout_package(package_name,package_rc)
             self.apply_git_checkout_branch(package_name,package_rc['branch'])
         return True
-            
+
     def handle_package(self,package_name,package_rc):
         """Compile and install packagename with branch branchname
 
@@ -412,7 +427,6 @@ class RobotpkgTests:
         Do not use make update confirm, this install the release version (the tar file).
 
         """
-        self.compile_package(package_name)
         return True
 
     def verify_list_of_packages(self,arch_release_candidates):

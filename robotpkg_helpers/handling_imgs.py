@@ -242,7 +242,7 @@ class HandlingImgs:
         This creates the field user_name
         """
         bashCmd="logname"
-        output_data,error=execute(bashCmd,self.env,debug=0)
+        output_data,error,p_status=execute(bashCmd,self.env,debug=0)
         nb_line=0
         for stdout_line in output_data.splitlines():
             if nb_line==0:
@@ -263,7 +263,7 @@ class HandlingImgs:
                 self.extract_user_name()
 
         bashCmd="groups "+self.user_name
-        output_data,error =execute(bashCmd,self.env,debug=0)
+        output_data,error,p_status =execute(bashCmd,self.env,debug=0)
 
         group_name=''
         nb_line=0

@@ -5,6 +5,8 @@
 import os
 import re
 import json
+import socket
+from .utils import execute
 
 class RobotpkgPackage:
 
@@ -178,6 +180,42 @@ class RobotpkgPackage:
         self.read_makefile()
         self.read_depend_mk()
 
+    def is_rpkg_installed(self,robotpkg_base,lenv):
+        """ Check if the package has alread been build and installed
+        """
+        
+        bashCmd = robotpkg_base + "/sbin/robotpkg_info -E " + self.name
+        stdOutput, errOutput,p_status = execute(bashCmd,lenv)
+        print("Package status:"+str(p_status))
+        if stdOutput!=None:
+            for stdout_line in stdOutput.splitlines():
+                std_cmp = stdout_line.decode('utf-8')
+                print(std_cmp)
+        if errOutput!=None:
+            for errout_line in errOutput.splitlines():
+                std_cmp = errout_line.decode('utf-8')
+                print(std_cmp)
+        if p_status==0:
+            return True
+        return False
+
+    def is_work_dir(self):
+        """ Check if the work directory is present
+        Set the work_dir field.
+        """ 
+        # Keep current directory.
+        current_path=os.getcwd()
+
+        # Reading Makefile
+        os.chdir(self.path)
+        hostname = socket.gethostname()
+        dirname_to_test = 'work.'+ hostname
+        self.is_work_dir=false
+        if os.path.isdir(dirname_to_test):
+            self.is_work_dir=true
+        # Going back to where we were
+        os.chdir(current_path)
+        
     def save(self,f):
         description={}
 

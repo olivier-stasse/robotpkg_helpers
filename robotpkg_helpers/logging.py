@@ -18,15 +18,19 @@ class RobotpkghLogging:
         self.f_error = open(filename,"wb")
 
     def execute(self,bashCmd,lenv,debug):
-        outputdata,error = execute(bashCmd,lenv,debug)
+        outputdata,error,p_status = execute(bashCmd,lenv,debug)
+        bashCmdu = bashCmd+'\n'
+        self.f_stdout.write(bashCmdu.encode('utf-8'))
         self.f_stdout.write(outputdata)
         self.f_error.write(error)
         self.f_stdout.flush()
         self.f_error.flush()
-        return outputdata,error
+        return outputdata,error,p_status
 
-    def execute_call(self,bashCmd,lenv,debug):
+    def execute_call(self,bashCmd,lenv,debug):        
         outputdata,error = execute_call(bashCmd,lenv,debug)
+        bashCmdu = bashCmd+'\n'
+        self.f_stdout.write(bashCmdu.encode('utf-8'))
         self.f_stdout.write(outputdata)
         self.f_error.write(error)
         self.f_stdout.flush()

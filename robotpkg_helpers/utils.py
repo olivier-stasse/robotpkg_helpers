@@ -2,6 +2,17 @@ import os
 import subprocess
 from .analyze_computer import AnalyzeComputer
 
+def add_colors(anObject):
+    """ Initialize colors for beautification
+    
+    The following variables are available:
+    REG, GREEN, PURPLE, NC (no color)
+    """
+    anObject.RED =  '\033[0;31m'
+    anObject.GREEN= '\033[0;32m'
+    anObject.PURPLE='\033[0;35m'
+    anObject.NC =   '\033[0m'
+
 def execute_capture_output(bashCommand,filename,lenv,debug=0):
     """ Execute baschCommand 
     
@@ -41,10 +52,11 @@ def execute(bashCommand, lenv, debug=0):
                                stderr=subprocess.PIPE,
                                env=lenv)
     outputdata, error = process.communicate()
+    p_status = process.returncode
     if debug>3:
         for stdout_line in outputdata.splitlines():
             print(stdout_line.decode('utf-8'))
-    return outputdata,error
+    return outputdata,error,p_status
 
 def execute_call(bashCommand, debug=0):
     """ Execute baschCommand 

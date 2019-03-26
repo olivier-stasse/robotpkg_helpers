@@ -49,4 +49,12 @@ class RobotpkgArchitectureReleaseCandidate:
         f=open(filename,'w')
         json.dump(self.data,f)
         f.close()
-        
+
+    def search_for_connected_components(self,rpkg_src_introspection):
+        """ This methods search for dependence between package to find
+        which package to update (or to build)
+        """
+        target_pkg_name = self.data['targetpkg']
+        for pkg_dep in rpkg_src_introspection.package_dict[target_pkg_name].includes_depend:
+            if pkg_dep in self.data['rc_pkgs'].keys():
+                self.data['rc_pkgs'][pkg_dep]['deg_con']= deg_con
