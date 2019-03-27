@@ -2,19 +2,17 @@
 import os
 import sys
 from robotpkg_helpers import HandlingImgs
+import argparse
 
 class RpkghCleanIntegrationDirs:
 
     def __init__(self):
         self.handle_options()
-        self.build_release_candidate()
+        self.clean_integration_directory()
 
     def handle_options(self):
         parser = argparse.ArgumentParser(
             description='Build an integration tests from filename.')
-        parser.add_argument('json_filename', metavar="json_filename",
-            action="store", nargs='+',
-            help='Name of the json specifying the architecture to build')
 
         parser.add_argument("-m", "--ramfsmntpt",
             dest="sub_ramfsmntpt", action="store",
@@ -36,14 +34,13 @@ class RpkghCleanIntegrationDirs:
 
         parser.parse_args(namespace=self)
 
-    def clean_integration_directory():
+    def clean_integration_directory(self):
         aHandlingImgs = HandlingImgs(
             ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
-            sub_ramfs_mnt_pt=self.sub_ramfsmntpt,
-            sub_archives=self.sub_archives)
+            sub_ramfs_mnt_pt=self.sub_ramfsmntpt)
 
         aHandlingImgs.clean_integration_directory()
 
 
 if __name__ == "__main__":
-    clean_integration_directory()
+    arpkgh_clean_integ_dirs = RpkghCleanIntegrationDirs()

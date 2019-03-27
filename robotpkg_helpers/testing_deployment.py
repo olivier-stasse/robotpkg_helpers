@@ -180,7 +180,7 @@ class RobotpkgTests:
 
         ldebug = self.debug
         self.debug=0
-        outputdata,error,p_status = self.execute("git clone "+repo)
+        outputdata,error,p_status = self.execute("git clone --depth 1 --no-single-branch "+repo)
         self.debug=ldebug
 
         if outputdata!=None:
