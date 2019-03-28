@@ -40,6 +40,12 @@
 			 "commit": null,
 			 "git_repo": "https://github.com/NoelieRamuzat/sot-torque-control.git",
 			 "tag": null},
+  "py-sot-torque-control": {"name": "py27-sot-torque-control",
+			 "branch": "devel_ddp",
+			 "commit": null,
+			 "git_repo": "https://github.com/NoelieRamuzat/sot-torque-control.git",
+			 "tag": null},
+
   "jrl-walkgen-v3": {"name": "jrl-walkgen-v3",
 		     "branch": "topic/eigen-v2",
 		     "commit": null,
