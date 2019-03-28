@@ -24,15 +24,14 @@ class RpkghCleanIntegrationDirs:
                             default="/integration_tests", nargs=1,
                             help='Directory corresponding to ROBOTPKG_MNG_ROOT \n(default: /integration_tests)')
 
-        parser.add_argument("-a", "--archdistfiles", dest='sub_arch_dist_files', action='store',
-                            default='arch_disfiles',nargs=1,
-                            help='Subdirectory in ROBOTPKG_MNG_ROOT where tar balls of packages are stored\n (default: archives)')
-
-        parser.add_argument("-t", "--targetpkg", dest='targetpkg', action='store',
-                            default='talos-dev',nargs=1,
-                            help='Package to compile\n (default: talos-dev)')
 
         parser.parse_args(namespace=self)
+
+        if isinstance(self.sub_ramfsmntpt,list):
+            self.sub_ramfsmntpt=self.sub_ramfsmntpt[0]
+
+        if isinstance(self.rpkgmngroot,list):
+            self.rpkgmngroot=self.rpkgmngroot[0]
 
     def clean_integration_directory(self):
         aHandlingImgs = HandlingImgs(

@@ -22,8 +22,15 @@ class RpkghCreateRamfsDir():
                             help='Directory corresponding to ROBOTPKG_MNG_ROOT \n(default: /integration_tests)')
 
         parser.parse_args(namespace=self)
+        
+        if isinstance(self.sub_ramfsmntpt,list):
+            self.sub_ramfsmntpt=self.sub_ramfsmntpt[0]
 
+        if isinstance(self.rpkgmngroot,list):
+            self.rpkgmngroot=self.rpkgmngroot[0]
+            
     def create_ramfs_dir(self):
+            
         aHandlingImgs = HandlingImgs(
             ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
             sub_ramfs_mnt_pt=self.sub_ramfsmntpt)
