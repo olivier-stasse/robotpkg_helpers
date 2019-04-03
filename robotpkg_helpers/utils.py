@@ -78,7 +78,7 @@ def build_test_rc_robotpkg_vars(ROBOTPKG_ROOT=None):
     import os
     if ROBOTPKG_ROOT==None:
         env_vars=os.environ.copy()
-        ROBOTPKG_ROOT=env_vars["HOME"]+'/devel-src/robotpkg-test-rc'
+        ROBOTPKG_ROOT='/integration_tests/robotpkg-test-rc'
         user=env_vars["USER"]
 
 
