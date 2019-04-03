@@ -31,6 +31,15 @@ class RpkghRestoreDir():
 
         parser.parse_args(namespace=self)
 
+        if isinstance(self.sub_ramfsmntpt,list):
+            self.sub_ramfsmntpt=self.sub_ramfsmntpt[0]
+
+        if isinstance(self.rpkgmngroot,list):
+            self.rpkgmngroot=self.rpkgmngroot[0]
+
+        if isinstance(self.sub_archives,list):
+            self.sub_archives=self.sub_archives[0]
+
     def restore_dir(self,filename):
         aHandlingImgs = HandlingImgs(
             ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
