@@ -46,8 +46,14 @@ class RpkghBuildArchReleaseCandidate:
         # Perform the deployment in arpgtestrc
         arpgtestrc = RobotpkgTests(aHandlingImg.robotpkg_mng_vars['ROBOTPKG_ROOT'])
         if arpgtestrc.perform_test_rc(arch_release_candidates=anArchitectureReleaseCandidate):
-            # If it worked then compile the package talos-dev
-            arpgtestrc.compile_package(anArchitectureReleaseCandidate.data['targetpkg'])
+            # If it worked then compile the package specified in targetpkg
+            if 'targetpkg' in anArchitectureReleaseCandidate.data:
+                arpgtestrc.compile_package(anArchitectureReleaseCandidate.data['targetpkg'])
+            else:
+                if 'targetpkgs' in anArchitectureReleaseCandidate.data:
+                    for pkg_name in anArchitectureReleaseCandidate.data['targetpkgs']:
+                        arpgtestrc.compile_package(pkg_name)
+                   
         else:
             print("Wrong handling of packages")
 
