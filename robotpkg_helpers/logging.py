@@ -37,6 +37,18 @@ class RobotpkghLogging:
         self.f_error.flush()
         return outputdata,error
 
+    def print_log(self,msg):
+        snd_msg='RPKGH:'+msg
+        print(snd_msg)
+        self.f_stdout.write(snd_msg.encode('utf-8'))
+        self.f_stdout.flush()
+
+    def print_err_log(self,msg):
+        snd_msg='RPKGH:'+msg
+        print(snd_msg)
+        self.f_error.write(snd_msg.encode('utf-8'))
+        self.f_error.flush()
+
     def __del__(self):
         if hasattr(self,'f_stdout'):
             self.f_stdout.close()

@@ -144,6 +144,9 @@ A package inside the dictionnary *rc_pkgs* is a python dictionnary with the foll
  - *git_repo*: The name of the repository you want to pull your branch
  - *tag*: Not yet supported
 
+## Logs
+
+
 ## robotpkg_helpers module
 
 ### RobotpkgPackage
