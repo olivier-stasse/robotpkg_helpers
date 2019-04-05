@@ -88,9 +88,8 @@ class RobotpkgSrcIntrospection:
     def build_list_of_packages(self):
         """ Class to perform robotpkg introspection
 
-        Arguments:
-        ROBOTPKG_ROOT_SRC: The directory where the whole robotpkg source is
-        located.
+        This functions uses  ROBOTPKG_ROOT_SRC: 
+        The directory where the whole robotpkg source is located.
         """
         # Keep current directory.
         current_path=os.getcwd()
@@ -123,12 +122,16 @@ class RobotpkgSrcIntrospection:
 
 
     def is_pkg_present(self,package_name):
+        """ Check if a given package is in the list of robotpkg packages
+        """
         if package_name in self.package_dict.keys():
             return True
         else:
             return False
 
     def display(self):
+        """ Display the list of packages
+        """
         for pkg_name,a_rpkg in self.package_dict.items():
             a_rpkg.display()
 
@@ -180,7 +183,37 @@ class RobotpkgSrcIntrospection:
             print(a_rpkg.tree_of_includes_os)
 
     def save(self,filename):
+        """ Save list of packages with information in JSON format.
+        """
         f=open(filename,'w')
         for pkg_name,a_rpkg in self.package_dict.items():
             a_rpkg.save(f)
         f.close()
+
+    def provides_org_version(self,organization_name):
+        """ This function returns a list of packages for a given organization
+        More precisely each node contains a package name and a version number
+        """
+        dict_for_org={}
+        # Iterates over the dictionnary of package
+        for a_pack in self.package_dict.values():
+            # If it has the org_name field
+            if hasattr(a_pack,'org_name'):
+                # If it is not empty
+                if len(a_pack.org_name)!=0:
+                    # Check the organization name
+                    if organization_name==a_pack.org_name[0]:
+                        # If the package has a version field
+                        if hasattr(a_pack,'version'):
+                            # If the version field is not empty
+                            if len(a_pack.version)!=0:
+                                dict_for_org[a_pack.name]= \
+                                    [ a_pack.version[0] ]
+                            else:
+                                dict_for_org[a_pack.name].version = ""
+                        else:
+                            dict_for_org[a_pack.name].version = ""
+                    # The organization is not present
+                # org_name is empty
+            # No org_name
+        return dict_for_org
