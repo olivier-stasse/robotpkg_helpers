@@ -146,6 +146,12 @@ A package inside the dictionnary *rc_pkgs* is a python dictionnary with the foll
 
 ## Logs
 
+When using *rpkgh_build_arch_rc* log files are generated. They contain information from robotpkg and from RPKGH. Right now the two streams stdout and stderr are handled separately. 
+
+The format used by the logs are:
+```
+robotpkg_YEAR_MONTH_DAY_HOUR_SECONDS.tgz
+```
 
 ## robotpkg_helpers module
 
