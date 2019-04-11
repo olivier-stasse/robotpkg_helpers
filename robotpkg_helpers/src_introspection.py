@@ -2,6 +2,9 @@ import os
 import re
 import json
 import sys
+# For accessing github
+import requests
+
 from .package import RobotpkgPackage
 from .utils import build_test_rc_robotpkg_vars, add_colors
 
@@ -45,7 +48,7 @@ class RobotpkgSrcIntrospection:
         self.debug=debug
         self.ROBOTPKG_ROOT_SRC= ROBOTPKG_ROOT_SRC
         self.build_list_of_packages()
-        
+
     def create_new_pkg_description(self,group,pkg_name,dirname,subgroup=None):
         """ Create a package object.
         group: Given by the directory in which is the package
@@ -88,7 +91,7 @@ class RobotpkgSrcIntrospection:
     def build_list_of_packages(self):
         """ Class to perform robotpkg introspection
 
-        This functions uses  ROBOTPKG_ROOT_SRC: 
+        This functions uses  ROBOTPKG_ROOT_SRC:
         The directory where the whole robotpkg source is located.
         """
         # Keep current directory.
@@ -190,6 +193,25 @@ class RobotpkgSrcIntrospection:
             a_rpkg.save(f)
         f.close()
 
+    def github_request(self,organization_name,package_name):
+        env_vars=os.environ.copy()
+        api_token = env_vars["GITHUB_PRIVATE_TOKEN"]
+        if api_token!=None:
+            url = 'https://api.github.com/graphql'
+            query_str = '{ repository(owner:"' + organization_name + '",name:"'
+            query_str = query_str + package_name + '"){ refs(refPrefix: "refs/tags/", last: 1)'
+            query_str = query_str + '{ edges { node { name } } } } }'
+            json_release_ref_tags={ 'query': query_str}
+            headers = {'Authorization': 'token %s' % api_token}
+            print(query_str)
+            r = requests.post(url=url, json=json_release_ref_tags, headers=headers)
+            resp=json.loads(r.text)
+            print(resp)
+            if resp!=None:
+                return resp["data"]["repository"]["refs"]["edges"][0]["node"]["name"]
+            return None
+
+
     def provides_org_version(self,organization_name):
         """ This function returns a list of packages for a given organization
         More precisely each node contains a package name and a version number
@@ -208,7 +230,10 @@ class RobotpkgSrcIntrospection:
                             # If the version field is not empty
                             if len(a_pack.version)!=0:
                                 dict_for_org[a_pack.name]= \
-                                    [ a_pack.version[0] ]
+                                            [ a_pack.version[0] ]
+                                #resp_gh = self.github_request(organization_name,a_pack.name)
+                                #if resp_gh!=None:
+                                #    dict_for_org[a_pack.name].append(resp_gh)
                             else:
                                 dict_for_org[a_pack.name].version = ""
                         else:
