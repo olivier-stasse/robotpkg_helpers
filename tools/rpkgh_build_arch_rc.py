@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import os
+import sys
 import argparse
 from robotpkg_helpers import RobotpkgTests,build_test_rc_robotpkg_vars
 from robotpkg_helpers import HandlingImgs,RobotpkgArchitectureReleaseCandidate
@@ -15,7 +16,11 @@ class RpkghBuildArchReleaseCandidate:
         # Load the arch distribution file.
         anArchitectureReleaseCandidate = RobotpkgArchitectureReleaseCandidate()
         if self.json_filename!=None:
-            anArchitectureReleaseCandidate.load_rc(self.json_filename[0])
+            if os.path.isfile(self.json_filename[0]):
+                anArchitectureReleaseCandidate.load_rc(self.json_filename[0])
+            else:
+                print('File '+self.json_filename[0]+' does not exists.')
+                sys.exit(-1)
 
         # Reading rpkg_mng_root
         # On line command has priority
@@ -35,7 +40,8 @@ class RpkghBuildArchReleaseCandidate:
         if not hasattr(self,'arch_dist_files'):
             if 'arch_dist_files' in anArchitectureReleaseCandidate.data.keys():
                 self.arch_dist_files = anArchitectureReleaseCandidate.data['arch_dist_files']
-            
+            else:
+                print("No arch_dist_files in json file")
         
         aHandlingImg = HandlingImgs(
             ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
@@ -83,6 +89,6 @@ class RpkghBuildArchReleaseCandidate:
                             help='Package to compile\n (default: talos-dev)')
 
         parser.parse_args(namespace=self)
-        
+
 if __name__ == "__main__":
     arpkgh_build_arch_rc = RpkghBuildArchReleaseCandidate()
