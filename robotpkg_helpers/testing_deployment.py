@@ -181,7 +181,8 @@ class RobotpkgTests:
 
         ldebug = self.debug
         self.debug=0
-        outputdata,error,p_status = self.execute("git clone --depth 1 --no-single-branch "+repo)
+        bash_cmd="git clone --depth 1 --no-single-branch "+repo
+        outputdata,error,p_status = self.execute(bash_cmd)
         self.debug=ldebug
 
         if outputdata!=None:
@@ -199,6 +200,7 @@ class RobotpkgTests:
                     self.logger.print_log(msg)
                     outputdata,error,p_status = self.execute("git pull origin master:master")
                 else:
+                    self.logger.print_log(bash_cmd)
                     self.logger.print_log(str2_cmp)
 
     def cloning_robotpkg_main(self,main_repository=None):
@@ -394,6 +396,7 @@ class RobotpkgTests:
         """ Performs make replace confirm in package working directory
         """
         # Going into the directory of the package
+        print("packagename in compile_package:" + packagename)
         group = self.robotpkg_src_intro.package_dict[packagename].group
         os.chdir(self.ROBOTPKG_ROOT+'/robotpkg/'+group+'/'+packagename)
         self.logger.print_log(self.GREEN+'Compile '+ packagename +' in robotpkg/'+group+self.NC+'\n')
@@ -416,6 +419,7 @@ class RobotpkgTests:
                     if line==2:
                         if str_cmp=="ERROR: overwrite already installed files.":
                             self.logger.print_err_log("Error state: overwrite_files")
+
 
 
     def prepare_package(self,package_name,package_rc):
@@ -446,9 +450,20 @@ class RobotpkgTests:
         if arch_release_candidates != None:
             self.logger.print_log("arch_release_candidates: ")
             arch_release_candidates.display()
+            # Check if packages specified in rc_pkgs exist
             for package_name in arch_release_candidates.data['rc_pkgs'].keys():
                 if not package_name in self.robotpkg_src_intro.package_dict.keys():
-                    self.logger.print_err_log(self.RED + package_name + " not in robotpkg.\nPlease check the name"+self.NC)
+                    self.logger.print_err_log(self.RED + package_name +
+                                              " not in robotpkg.\nPlease check the name"+self.NC)
+                    return False;
+
+            if 'targetpkgs' in arch_release_candidates.data:
+              # Check if packages specified in targetpkgs exist
+              for package_name in arch_release_candidates.data['targetpkgs']:
+                if not package_name in self.robotpkg_src_intro.package_dict.keys():
+                    self.logger.print_err_log(self.RED + package_name +
+                                              " specified in targetpkgs not present in robotpkg.\n"
+                                              + "Please check the name"+self.NC)
                     return False;
         return True;
 

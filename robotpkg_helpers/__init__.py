@@ -7,4 +7,5 @@ from .package_release_candidate import RobotpkgPkgReleaseCandidate
 from .analyze_computer import AnalyzeComputer
 from .package_release_candidate import RobotpkgPkgReleaseCandidate
 from .architecture_release_candidate import RobotpkgArchitectureReleaseCandidate
+from .makefile_lark_parser import lark_parse_makefile
 

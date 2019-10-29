@@ -8,11 +8,17 @@ from robotpkg_helpers import HandlingImgs,RobotpkgArchitectureReleaseCandidate
 class RpkghBuildArchReleaseCandidate:
 
     def __init__(self):
+
+        self.RED =  '\033[0;31m'
+        self.GREEN= '\033[0;32m'
+        self.PURPLE='\033[0;35m'
+        self.NC =   '\033[0m'
+
         self.handle_options()
         self.build_release_candidate()
-        
+
     def build_release_candidate(self):
-    
+
         # Load the arch distribution file.
         anArchitectureReleaseCandidate = RobotpkgArchitectureReleaseCandidate()
         if self.json_filename!=None:
@@ -35,6 +41,12 @@ class RpkghBuildArchReleaseCandidate:
             if 'ramfs_mnt_pt' in anArchitectureReleaseCandidate.data.keys():
                 self.sub_ramfsmntpt = anArchitectureReleaseCandidate.data['ramfs_mnt_pt']
 
+        # Reading verbosity
+        # Define the debug level
+        if not hasattr(self,'verbosity'):
+            if 'verbosity' in anArchitectureReleaseCandidate.data.keys():
+                self.verbosity = anArchitectureReleaseCandidate.data['verbosity']
+
         # Reading arch_dist_files
         # On line commans has priority
         if not hasattr(self,'arch_dist_files'):
@@ -42,24 +54,34 @@ class RpkghBuildArchReleaseCandidate:
                 self.arch_dist_files = anArchitectureReleaseCandidate.data['arch_dist_files']
             else:
                 print("No arch_dist_files in json file")
-        
+
         aHandlingImg = HandlingImgs(
             ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
             sub_ramfs_mnt_pt=self.sub_ramfsmntpt,
-            sub_arch_dist_files = self.arch_dist_files
+            sub_arch_dist_files = self.arch_dist_files,
+            debug=int(self.verbosity[0])
         )
 
         # Perform the deployment in arpgtestrc
-        arpgtestrc = RobotpkgTests(aHandlingImg.robotpkg_mng_vars['ROBOTPKG_ROOT'])
+        arpgtestrc = \
+            RobotpkgTests(aHandlingImg.robotpkg_mng_vars['ROBOTPKG_ROOT'],
+                          debug=int(self.verbosity[0]))
         if arpgtestrc.perform_test_rc(arch_release_candidates=anArchitectureReleaseCandidate):
             # If it worked then compile the package specified in targetpkg
             if 'targetpkg' in anArchitectureReleaseCandidate.data:
-                arpgtestrc.compile_package(anArchitectureReleaseCandidate.data['targetpkg'])
+                # Test if this is a list or not
+                if isinstance(anArchitectureReleaseCandidate.data['targetpkg'],str) :
+                    arpgtestrc.compile_package(anArchitectureReleaseCandidate.data['targetpkg'])
+                else:
+                    print(self.RED + "ERROR: In json file targetpkg is not a string" + self.NC)
+                    if isinstance(anArchitectureReleaseCandidate.data['targetpkg'],list) :
+                        print(self.RED + "use targetpkgs instead" + self.NC)
             else:
+                # If we have a list of package to compile
                 if 'targetpkgs' in anArchitectureReleaseCandidate.data:
                     for pkg_name in anArchitectureReleaseCandidate.data['targetpkgs']:
                         arpgtestrc.compile_package(pkg_name)
-                   
+
         else:
             print("Wrong handling of packages")
 
@@ -87,6 +109,10 @@ class RpkghBuildArchReleaseCandidate:
         parser.add_argument("-t", "--targetpkg", dest='targetpkg', action='store',
                             default='talos-dev',nargs=1,
                             help='Package to compile\n (default: talos-dev)')
+
+        parser.add_argument("-v", "--verbosity", dest='verbosity', action='store',
+                            default='0',nargs=1,
+                            help='Level of verbosity\n (default: 0)')
 
         parser.parse_args(namespace=self)
 

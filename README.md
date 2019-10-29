@@ -171,3 +171,13 @@ This class is building instance of robotpkg to make deployment tests.
 It is useful for instance to test if various releases of packages are coherent
 together.
 
+## Notes
+
+### Shallow git repository
+In order to save time, robotpkg and robotpkg-wip are cloned with a depth of 1.
+If it is necessary to have the full history (needed for instance for merge or rebase),
+it is possible to unshallow it with:
+```
+git fetch --unshallow
+```
+
