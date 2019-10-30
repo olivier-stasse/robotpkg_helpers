@@ -2,6 +2,7 @@
 import os
 import sys
 import argparse
+import notify2 
 from robotpkg_helpers import RobotpkgTests,build_test_rc_robotpkg_vars
 from robotpkg_helpers import HandlingImgs,RobotpkgArchitectureReleaseCandidate
 
@@ -16,7 +17,28 @@ class RpkghBuildArchReleaseCandidate:
 
         self.handle_options()
         self.build_release_candidate()
+        
+        
+    def notify_ok(self, notif_title, notif_message):
+        notify2.init('Robotpkg Helpers Notify')
+        n = notify2.Notification(notif_title,  
+                                 notif_message,  
+                                 icon="/usr/share/icons/oxygen/64x64/actions/dialog-ok-apply.png"
+                                 ) 
+        n.set_urgency(notify2.URGENCY_NORMAL) 
+        n.show() 
+        n.set_timeout(15000)
 
+    def notify_wrong(self, notif_title, notif_message):
+        notify2.init('Robotpkg Helpers Notify')
+        n = notify2.Notification(notif_title,  
+                                 notif_message,  
+                                 icon="/usr/share/icons/oxygen/64x64/status/dialog-error.png"
+                                 ) 
+        n.set_urgency(notify2.URGENCY_NORMAL) 
+        n.show() 
+        n.set_timeout(15000)
+        
     def build_release_candidate(self):
 
         # Load the arch distribution file.
@@ -72,10 +94,15 @@ class RpkghBuildArchReleaseCandidate:
                 # Test if this is a list or not
                 if isinstance(anArchitectureReleaseCandidate.data['targetpkg'],str) :
                     arpgtestrc.compile_package(anArchitectureReleaseCandidate.data['targetpkg'])
+                    self.notify_ok("Robotpkg helpers",
+                                   "Compiling "+anArchitectureReleaseCandidate.data['targetpkg']+ " succeeded"
+                    );
+                    
                 else:
                     print(self.RED + "ERROR: In json file targetpkg is not a string" + self.NC)
                     if isinstance(anArchitectureReleaseCandidate.data['targetpkg'],list) :
                         print(self.RED + "use targetpkgs instead" + self.NC)
+                        self.notify_wrong("Robotpkg helpers","Error in JSON file - Use targetpkgs instead");
             else:
                 # If we have a list of package to compile
                 if 'targetpkgs' in anArchitectureReleaseCandidate.data:
@@ -83,7 +110,7 @@ class RpkghBuildArchReleaseCandidate:
                         arpgtestrc.compile_package(pkg_name)
 
         else:
-            print("Wrong handling of packages")
+            self.notify_wrong("Error while processing","Wrong handling of packages")
 
     def handle_options(self):
         parser = argparse.ArgumentParser(
