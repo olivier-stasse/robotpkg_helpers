@@ -1,0 +1,11 @@
+{"arch_dist_files": "arch_distfiles",
+ "archives": "archives",
+ "ramfs_mnt_pt": "robotpkg-test-rc-sot-core", 
+ "repo_robotpkg_wip":   "git@gepgitlab.laas.fr:ostasse/robotpkg-wip.git",
+ "repo_robotpkg_main": "https://git.openrobots.org/robots/robotpkg.git",
+ "robotpkg_mng_root": "/integration_tests", 
+ "rc_pkgs":
+ {},
+ "ssh_git_openrobots": false,
+ "targetpkgs": ["py-dynamic-graph-v3","pinocchio"]
+}
