@@ -6,6 +6,8 @@ import os
 import re
 import json
 import socket
+from .makefile_lark_parser import lark_parse_makefile
+
 from .utils import execute
 
 class RobotpkgPackage:
@@ -121,6 +123,9 @@ class RobotpkgPackage:
 
         # Search for mk
         self.includes_mk = re.findall("include\s*../../mk/([0-9a-zA-Z-]+)/([0-9a-zA-Z-]+).mk",make_content)
+
+        # Lark analysis of the makefile file.
+        #lark_parse_makefile(make_content,self)
 
     def read_makefile(self):
         # Keep current directory.
