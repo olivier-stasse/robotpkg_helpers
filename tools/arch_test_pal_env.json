@@ -1,0 +1,11 @@
+{"arch_dist_files": "arch_distfiles",
+ "archives": "archives",
+ "ramfs_mnt_pt": "pal_env_for_super_build", 
+ "repo_robotpkg_wip": "git://git.openrobots.org/robots/robotpkg/robotpkg-wip", 
+ "repo_robotpkg_main": "git://git.openrobots.org/robots/robotpkg.git",
+ "robotpkg_mng_root": "/integration_tests", 
+ "rc_pkgs":
+ {},
+ "ssh_git_openrobots": false,
+ "targetpkgs": ["talos-simulation","tiago-navigation"]
+}
