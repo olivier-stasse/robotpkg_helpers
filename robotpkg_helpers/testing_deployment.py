@@ -221,10 +221,10 @@ class RobotpkgTests:
                 self.logger.print_log(stdout_line.decode('utf-8'))
 
         if error!=None:
-            self.logger.print_log("There is an error")
+            self.logger.print_log("Robotpkg detected")
             for stdout_line in error.splitlines():
                 str_cmp = stdout_line.decode('utf-8')
-                str2_cmp='fatal: destination path \'robotpkg\' '+\
+                str2_cmp=': destination path \'robotpkg\' '+\
                 'already exists and is not an empty directory.'
 
                 if str_cmp==str2_cmp:
@@ -518,11 +518,12 @@ class RobotpkgTests:
             if 'targetpkgs' in arch_release_candidates.data:
               # Check if packages specified in targetpkgs exist
               for package_name in arch_release_candidates.data['targetpkgs']:
-                if not package_name in self.robotpkg_src_intro.package_dict.keys():
-                    self.logger.print_err_log(self.RED + package_name +
-                                              " specified in targetpkgs not present in robotpkg.\n"
+                if not package_name in \
+                   self.robotpkg_src_intro.package_dict.keys():
+                      self.logger.print_err_log(self.RED + package_name + \
+                                              " specified in targetpkgs not present in robotpkg.\n" 
                                               + "Please check the name"+self.NC)
-                    return False;
+                      return False;
         return True;
 
     def perform_test_rc(self,
