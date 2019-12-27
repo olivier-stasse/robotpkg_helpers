@@ -237,19 +237,40 @@ class HandlingImgs:
         # Going back to where we were
         os.chdir(current_path)
 
+    def sub_extract_user_name(self,bashCmd):
+        print("sub_extract_user_name:",bashCmd)
+        output_data,error,p_status=execute(bashCmd,self.env,debug=0)
+        nb_line=0
+        user_name=None
+        if error:
+            print("Unable to execute ",bashCmd)
+            print(p_status)
+            return None
+
+        for stdout_line in output_data.splitlines():
+            print(stdout_line)
+            if nb_line==0:
+                user_name=stdout_line.decode('utf-8')
+            nb_line=nb_line+1
+        if user_name is not None:
+            for sub_user_name in user_name:
+                return sub_user_name
+
+        return user_name
+
     def extract_user_name(self):
         """ Extraction the username
         This creates the field user_name
         """
-        bashCmd="logname"
-        output_data,error,p_status=execute(bashCmd,self.env,debug=0)
-        nb_line=0
-        for stdout_line in output_data.splitlines():
-            if nb_line==0:
-                user_name=stdout_line.decode('utf-8')
-                break
-            nb_line=nb_line+1
-
+        bashCmd="ls --fake-option"
+        user_name=self.sub_extract_user_name(bashCmd)
+        if user_name is None:
+            user_name=os.environ['USER']
+        if user_name is None:
+            import sys
+            print("Unable to find user name")
+            sys.exit(-1)
+        print("User name found:",user_name)
         return user_name
 
     def extract_group_name(self):
