@@ -19,14 +19,6 @@ This will create the directories:
 /integration_tests/robotpkg-test-rc
 ```
 
-Creating you ramfs is optional now. It is done by:
-```
-sudo rpkgh_create_ramfs
-```
-Note: *robotpkg-test-rc* should be highlighted because it is mounted over a ram filesystem.
-This is allowing faster access time when compiling.
-Be aware that turn off your computer may make you lost all the data in this directory.
-This problem is addressed in the following steps.
 
 ### Deploy a first application
 Going into the tools directory and use:
@@ -69,6 +61,15 @@ located in this directory:
 /integration_tests/archives
 ```
 
+### RAMFS
+If you need to compile fast and without exhausting your hard-drive you can use a ramfs:
+```
+sudo rpkgh_create_ramfs
+```
+Note: *robotpkg-test-rc* should be highlighted because it is mounted over a ram filesystem.
+This is allowing faster access time when compiling.
+Be aware that turn off your computer may make you lost all the data in this directory.
+This problem is addressed in the following steps.
 
 ## Tools
 
@@ -87,14 +88,43 @@ The format of the file names is
 ```
 The text file record the release of each robotpkg package installed.
 - [Restore the install and robotpkg directories inside /integration_tests/ from a file located in archives](tools/rpkgh_restore_dir.py)
-- [Deployment tests for a given set of packages and specific branches in a specified directory](tools/rpkgh_rc_other_path.py)
+- [Deployment tests for a given set of packages and specific branches in a specified directory](tools/rpkgh_build_arch_rc.py)
 This file read a json file specifying the packages and the branch to build. The file <b>arch_rc.json</b> is an example of such a file:
 ```
-[["dynamic-graph-v3", "devel"], ["sot-core-v3", "devel"], ["py-sot-core-v3", "devel"], ["sot-tools-v3","devel"],["py-sot-tools-v3","devel"],["sot-dynamic-pinocchio-v3", "devel"], ["py-sot-dynamic-pin
-occhio-v3", "devel"], ["tsid", "devel"], ["parametric-curves", "devel"], ["sot-torque-control", "devel"], ["sot-talos", "master"]]
+"arch_dist_files": "arch_distfiles",
+ "archives": "archives",
+ "ramfs_mnt_pt": "robotpkg-test-rc", 
+ "repo_robotpkg_wip": "https://git.openrobots.org/robots/robotpkg/robotpkg-wip.git",
+ "repo_robotpkg_main": "https://git.openrobots.org/robots/robotpkg.git",
+ "robotpkg_mng_root": "/integration_tests", 
+ "rc_pkgs":
+ {"dynamic-graph-v3": {"name": "dynamic-graph-v3",
+		       "branch": "devel",
+		       "commit": null,
+		       "git_repo": "https://github.com/stack-of-tasks/dynamic-graph.git",
+		       "tag": null},
+  "sot-core-v3": {"name": "sot-core-v3",
+		  "branch": "devel",
+		  "commit": null,
+		  "git_repo": "https://github.com/stack-of-tasks/sot-core.git",
+		  "tag": null},
+  "py-sot-core-v3": {"name": "sot-core-v3",
+		     "branch": "devel",
+		     "commit": null,
+		     "git_repo": "https://github.com/stack-of-tasks/sot-core.git",
+		     "tag": null},
+  "roscontrol-sot": {"name": "roscontrol-sot",
+		     "branch": "devel",
+		     "commit": null,
+		     "git_repo": "https://github.com/stack-of-tasks/roscontrol_sot.git",
+		     "tag": null}
+  
+ },
+ "ssh_git_openrobots": false,
+ "targetpkg": "talos-dev"
+}
 ```
-- [Deployment tests using a destfiles directory and a personal fork of robotpkg](tools/rpkgh_distfiles.py)
-- [Generate a dockerfile based on parsing a Makefile using jrl-cmakemodules](tools/rpkgh_gen_dockerfile.py)
+- [Generate a dockerfile based on parsing a Makefile using jrl-cmakemodules (experimental)](tools/rpkgh_gen_dockerfile.py)
 
 ## JSON format
 
