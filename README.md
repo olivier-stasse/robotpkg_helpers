@@ -2,6 +2,13 @@
 
 This is a python package providing tools to handle [robotpkg](http://robotpkg.openrobots.org/robotpkg/README.html).
 
+## Dependencies
+
+You need the following python3 packages:
+```
+sudo apt-get install python3-notify2 python3-lark-parser
+```
+
 ## Building and deploy a local install of the [stack-of-tasks](http://stack-of-tasks.github.io) from source:
 
 ### Creating your workspace:
