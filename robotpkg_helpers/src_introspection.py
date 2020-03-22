@@ -6,47 +6,33 @@ import sys
 import requests
 
 from .package import RobotpkgPackage
-from .utils import build_test_rc_robotpkg_vars, add_colors
+from .utils import add_colors
 
-def add_robotpkg_variables(anObject,ROBOTPKG_ROOT=None):
-    """ This function adds ROBOTPKG_ROOT, ROBOTPKG_ROOT_SRC and robotpkg_src_intro
-    if they do exist.
-    It also adds robotpkg_vars
-    robotpkg_src_intro provides information on robotpkg
-    """
-
-    if ROBOTPKG_ROOT is None:
-        anObject.robotpkg_vars = build_test_rc_robotpkg_vars()
-        anObject.ROBOTPKG_ROOT= anObject.robotpkg_vars['ROOT']
-    else:
-        anObject.ROBOTPKG_ROOT=ROBOTPKG_ROOT
-
-    anObject.ROBOTPKG_ROOT_SRC=anObject.ROBOTPKG_ROOT + '/robotpkg'
-    anObject.ROBOTPKG_BASE=anObject.ROBOTPKG_ROOT + '/install'
-
-def add_robotpkg_src_introspection(anObject,ROBOTPKG_ROOT=None):
+def add_robotpkg_src_introspection(anObject,arch_release_candidate=None):
     if hasattr(anObject,'robotpkg_src_intro'):
         return
 
-    if not hasattr(anObject,'ROBOTPKG_ROOT_SRC'):
-        add_robotpkg_variables(anObject,ROBOTPKG_ROOT)
+    if not hasattr(anObject,'arch_release_candidate'):
+        anObject.arch_release_candidate = arch_release_candidate
 
     # Analysis the robotpkg src structure
-    anObject.robotpkg_src_intro= RobotpkgSrcIntrospection(anObject.ROBOTPKG_ROOT_SRC)
+    anObject.robotpkg_src_intro= RobotpkgSrcIntrospection(anObject.arch_release_candidate)
 
 
 # This class handles the analysis of a robotpkg directory
 class RobotpkgSrcIntrospection:
 
-    def __init__(self, ROBOTPKG_ROOT_SRC=None,debug=0):
+    def __init__(self, anArchiReleaseCandidate=None,debug=0):
         """ Class to perform robotpkg introspection
 
         Arguments:
-        ROBOTPKG_ROOT_SRC: The directory where the whole robotpkg source is located.
+        anArchiReleaseCandidate: The configuration object.
         """
         add_colors(self)
         self.debug=debug
-        self.ROBOTPKG_ROOT_SRC= ROBOTPKG_ROOT_SRC
+        self.archi_release_candidate = anArchiReleaseCandidate
+        self.robotpkg_mng_vars= self.archi_release_candidate.robotpkg_mng_vars
+        self.ROBOTPKG_ROOT_SRC = self.robotpkg_mng_vars['robotpkg_mng_src']+'/robotpkg'
         self.build_list_of_packages()
 
     def create_new_pkg_description(self,group,pkg_name,dirname,subgroup=None):
@@ -100,8 +86,9 @@ class RobotpkgSrcIntrospection:
 
         # Explore robotpkg src direction
         if not os.path.isdir(self.ROBOTPKG_ROOT_SRC):
-            print(self.RED+"ROBOTPKG_ROOT_SRC:"+self.NC)
-            print(self.RED+self.ROBOTPKG_ROOT_SRC+" does not exists"+self.NC)
+            print(self.RED+"robotpkg_mng_var['robotpkg_mng_src']:"+self.NC)
+            print(self.RED+self.robotpkg_mng_var['robotpkg_mng_src']+
+                  " does not exists"+self.NC)
             sys.exit(-1)
 
         dirs=os.listdir(self.ROBOTPKG_ROOT_SRC)
@@ -194,6 +181,10 @@ class RobotpkgSrcIntrospection:
         f.close()
 
     def github_request(self,organization_name,package_name):
+        """ Creates request to introspect the github repo related to a package.
+        organization_name: The github organization
+        package_name: The github package of the organization.
+        """
         env_vars=os.environ.copy()
         api_token = env_vars["GITHUB_PRIVATE_TOKEN"]
         if api_token!=None:
@@ -215,6 +206,7 @@ class RobotpkgSrcIntrospection:
     def provides_org_version(self,organization_name):
         """ This function returns a list of packages for a given organization
         More precisely each node contains a package name and a version number
+        Returns a dictionary of package according to the organization.
         """
         dict_for_org={}
         # Iterates over the dictionnary of package
@@ -242,3 +234,18 @@ class RobotpkgSrcIntrospection:
                 # org_name is empty
             # No org_name
         return dict_for_org
+
+    def is_rpkg_installed(package_name):
+        """ Test if package name has been installed in the current 
+            robotpkg install directory
+            returns: False
+        """
+        # If the package name is valid
+        if package_name !=None:
+            # Is the key in the package dictionnary
+            if package_name in self.package_dict:
+                rpkg = self.package_dict[package_name]
+                return rpkg.is_rpkg_installed(self.robotpkg_mng_vars['ROBOTPKG_BASE'],
+                                       self.env)
+            return False
+        return False

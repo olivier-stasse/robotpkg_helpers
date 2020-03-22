@@ -5,10 +5,8 @@
 import os
 import datetime
 
-from .utils import execute,execute_call,add_robotpkg_mng_variables
+from .utils import execute,execute_call
 from .utils import init_environment_variables,execute_capture_output
-
-from .src_introspection import add_robotpkg_variables
 
 
 class HandlingImgs:
@@ -23,48 +21,21 @@ class HandlingImgs:
 
     Caution: When using a ramdisk you may lose data if you do not decouple your source code
     and the one deployed for integration test.
-    ramfs_dir :          Full path to ramfs_dir (default: None)
-    ROBOTPKG_MNG_ROOT:   Full path to the root integration directory
-                         (default: '/integration_tests')
-    sub_ramfs_mnt_pt:    Subdirectory inside ROBOTPKG_MNT_ROOT
-                         (default: 'robotpkg-test-rc')
-    sub_arch_dist_files: Subdirectory where to store packages releases
-                         (default: 'arch_distfiles')
-    archives:            Subdirectory where to store install/robotpkg sub directories
-                         (default: 'archives')
+    Uses RobotpkgArchitectureReleaseCandidate for the structure of the deployment
     """
 
-    def __init__(self,
-                 ramfs_dir=None,
-                 ROBOTPKG_MNG_ROOT='/integration_tests',debug=0,
-                 sub_ramfs_mnt_pt='robotpkg-test-rc',
-                 sub_arch_dist_files='arch_distfiles',
-                 sub_archives='archives'):
+    def __init__(self,anArchiReleaseCandidate):
 
         self.RED =  '\033[0;31m'
         self.GREEN= '\033[0;32m'
         self.PURPLE='\033[0;35m'
         self.NC =   '\033[0m'
 
-        if ramfs_dir==None:
-            ramfs_dir=ROBOTPKG_MNG_ROOT+'/'+sub_ramfs_mnt_pt
-
-        # Initialize ramfs_dir
-        self.ramfs_dir=ramfs_dir
-
-        # Populate the object with management field
-        add_robotpkg_mng_variables(self,
-                                   ROBOTPKG_MNG_ROOT=ROBOTPKG_MNG_ROOT,
-                                   sub_ramfs_mnt_pt=sub_ramfs_mnt_pt,
-                                   sub_arch_dist_files = sub_arch_dist_files,
-                                   sub_archives = sub_archives )
-
-        # Populate the object with field ROBOTPKG_ROOT
-        add_robotpkg_variables(self,
-                               ROBOTPKG_ROOT=self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
+        self.archi_release_candidate = anArchiReleaseCandidate
+        self.robotpkg_mng_vars = self.archi_release_candidate.robotpkg_mng_vars
 
         # Populate the object with the robotpkg environment variables
-        init_environment_variables(self,self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
+        init_environment_variables(self)
 
         # Extract the user name even in case of sudo
         self.user_name = self.extract_user_name()
@@ -73,7 +44,7 @@ class HandlingImgs:
         self.group_name = self.extract_group_name()
 
         # Debug level
-        self.debug=debug
+        self.debug=self.robotpkg_mng_vars['debug']
 
 
     def checking_rams_fs_mnt_pt_dir(self):
@@ -122,7 +93,7 @@ class HandlingImgs:
         # checking the ram FS mounting point directory
         bashCmd="chown "+ self.user_name + '.' + \
             self.group_name + ' ' + self.ramfs_dir+ " "
-        outputdata,error,output_stattus = execute(bashCmd,self.env,self.debug)
+        outputdata,error,output_status = execute(bashCmd,self.env,self.debug)
 
 
     def prepare_mng_dirs(self):
@@ -133,7 +104,7 @@ class HandlingImgs:
         """
 
         # First step: check that all directories exists
-        lmng_dirs=['ROOT','ARCH_DISTFILES','ARCHIVES']
+        lmng_dirs=['robotpkg_mng_root','arch_dist_files','archives']
         for amng_dir in lmng_dirs:
             mng_dir_name = self.robotpkg_mng_vars[amng_dir]
             print("Test: "+mng_dir_name)
@@ -159,7 +130,7 @@ class HandlingImgs:
         """ Build a file to describe the contains of the tar file.
         """
         if backup_dir==None:
-            backup_dir = self.robotpkg_mng_vars['ARCHIVES']
+            backup_dir = self.robotpkg_mng_vars['archives']
 
         str_base_name = os.path.basename(tar_file_name)
         str_base_name_root,str_base_name_ext = os.path.splitext(str_base_name)
@@ -177,13 +148,13 @@ class HandlingImgs:
         current_path=os.getcwd()
 
         if backup_dir==None:
-            backup_dir = self.robotpkg_mng_vars['ARCHIVES']
+            backup_dir = self.robotpkg_mng_vars['archives']
 
         if tar_file_name==None:
             tar_file_name = self.build_tar_file_name(backup_dir)
 
         # Getting the name of the root directory
-        basename_rpkg_root_dir=os.path.basename(self.ROBOTPKG_ROOT)
+        basename_rpkg_root_dir=os.path.basename(self.robotpkg_mngs_vars['robotpkg_mng_root'])
 
         bashCmd="tar -czf "+ tar_file_name + ' ' + basename_rpkg_root_dir
         print(bashCmd)
@@ -207,19 +178,19 @@ class HandlingImgs:
         current_path=os.getcwd()
 
         if backup_dir==None:
-            backup_dir = self.robotpkg_mng_vars['ARCHIVES']
+            backup_dir = self.robotpkg_mng_vars['archives']
 
         if tar_file_name==None:
             print("You should specified the tar_file_name")
             return
 
         # Going inside ROBOTPKG_MNG_ROOT
-        os.chdir(self.ROBOTPKG_MNG_ROOT)
-        print("Going into "+self.ROBOTPKG_MNG_ROOT)
+        os.chdir(self.robotpkg_mng_vars['robotpkg_mng_root'])
+        print("Going into "+self.robotpkg_mng_vars['robotpkg_mng_root'])
 
         # Extracting from the tarball.
         bashCmd="tar -xzvf "+ backup_dir+'/'+tar_file_name +\
-            ' --directory ' + self.robotpkg_mng_vars['ROOT']
+            ' --directory ' + self.robotpkg_mng_vars['robotpkg_mng_root']
         print("Executing :\n"+bashCmd)
         outputdata,error,p_status = execute(bashCmd,self.env,self.debug)
         if error!=None:
@@ -306,7 +277,7 @@ class HandlingImgs:
         current_path=os.getcwd()
 
         # Going inside ROBOTPKG_MNG_ROOT
-        os.chdir(self.robotpkg_mng_vars['ROBOTPKG_ROOT'])
+        os.chdir(self.robotpkg_mng_vars['ramfs_mnt_pt'])
 
         print(os.getcwd())
         bashCmd="rm -rf robotpkg"

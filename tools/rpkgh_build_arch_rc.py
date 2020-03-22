@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 import os
 import sys
-import argparse
 import notify2 
-from robotpkg_helpers import RobotpkgTests,build_test_rc_robotpkg_vars
+from robotpkg_helpers import RobotpkgTests
 from robotpkg_helpers import HandlingImgs,RobotpkgArchitectureReleaseCandidate
 
 class RpkghBuildArchReleaseCandidate:
@@ -15,7 +14,9 @@ class RpkghBuildArchReleaseCandidate:
         self.PURPLE='\033[0;35m'
         self.NC =   '\033[0m'
 
-        self.handle_options()
+        # Load the arch distribution file.
+        self.arch_release_candidate = RobotpkgArchitectureReleaseCandidate()
+        self.arch_release_candidate.handle_options()
         self.build_release_candidate()
         
         
@@ -41,72 +42,65 @@ class RpkghBuildArchReleaseCandidate:
         
     def build_release_candidate(self):
 
-        # Load the arch distribution file.
-        anArchitectureReleaseCandidate = RobotpkgArchitectureReleaseCandidate()
-        if self.json_filename!=None:
-            if os.path.isfile(self.json_filename[0]):
-                anArchitectureReleaseCandidate.load_rc(self.json_filename[0])
-            else:
-                print('File '+self.json_filename[0]+' does not exists.')
-                sys.exit(-1)
+        # if self.json_filename!=None:
+        #     if os.path.isfile(self.json_filename[0]):
+        #         anArchReleaseCandidate.load_rc(self.json_filename[0])
+        #     else:
+        #         print('File '+self.json_filename[0]+' does not exists.')
+        #         sys.exit(-1)
 
-        # Reading rpkg_mng_root
-        # On line command has priority
-        if not hasattr(self,'robotpkg_mnt_root'):
-            # over file
-            if 'robotpkg_mng_root' in anArchitectureReleaseCandidate.data.keys():
-                self.rpkgmngroot = anArchitectureReleaseCandidate.data['robotpkg_mng_root']
+        # # Reading rpkg_mng_root
+        # # On line command has priority
+        # if not hasattr(self,'robotpkg_mnt_root'):
+        #     # over file
+        #     if 'robotpkg_mng_root' in anArchReleaseCandidate.robotpkg_mng_vars.keys():
+        #         self.rpkgmngroot = anArchReleaseCandidate.robotpkg_mng_vars['robotpkg_mng_root']
 
-        # Reading ramfsmntpot
-        # On line command has priority
-        if not hasattr(self,'ramfsmntpt'):
-            if 'ramfs_mnt_pt' in anArchitectureReleaseCandidate.data.keys():
-                self.sub_ramfsmntpt = anArchitectureReleaseCandidate.data['ramfs_mnt_pt']
+        # # Reading ramfsmntpot
+        # # On line command has priority
+        # if not hasattr(self,'ramfsmntpt'):
+        #     if 'ramfs_mnt_pt' in anArchReleaseCandidate.robotpkg_mng_vars.keys():
+        #         self.sub_ramfsmntpt = anArchReleaseCandidate.robotpkg_mng_vars['ramfs_mnt_pt']
 
-        # Reading verbosity
-        # Define the debug level
-        if not hasattr(self,'verbosity'):
-            if 'verbosity' in anArchitectureReleaseCandidate.data.keys():
-                self.verbosity = anArchitectureReleaseCandidate.data['verbosity']
+        # # Reading verbosity
+        # # Define the debug level
+        # if not hasattr(self,'verbosity'):
+        #     if 'verbosity' in anArchReleaseCandidate.robotpkg_mng_vars.keys():
+        #         self.verbosity = anArchReleaseCandidate.robotpkg_mng_vars['verbosity']
 
-        # Reading arch_dist_files
-        # On line commans has priority
-        if not hasattr(self,'arch_dist_files'):
-            if 'arch_dist_files' in anArchitectureReleaseCandidate.data.keys():
-                self.arch_dist_files = anArchitectureReleaseCandidate.data['arch_dist_files']
-            else:
-                print("No arch_dist_files in json file")
-
-        aHandlingImg = HandlingImgs(
-            ROBOTPKG_MNG_ROOT=self.rpkgmngroot,
-            sub_ramfs_mnt_pt=self.sub_ramfsmntpt,
-            sub_arch_dist_files = self.arch_dist_files,
-            debug=int(self.verbosity[0])
-        )
+        # # Reading arch_dist_files
+        # # On line commans has priority
+        # if not hasattr(self,'arch_dist_files'):
+        #     if 'arch_dist_files' in anArchReleaseCandidate.robotpkg_mng_vars.keys():
+        #         self.arch_dist_files = anArchReleaseCandidate.robotpkg_mng_vars['arch_dist_files']
+        #     else:
+        #         print("No arch_dist_files in json file")
+                
+        aHandlingImg = HandlingImgs(self.arch_release_candidate)
 
         # Perform the deployment in arpgtestrc
         arpgtestrc = \
-            RobotpkgTests(aHandlingImg.robotpkg_mng_vars['ROBOTPKG_ROOT'],
-                          debug=int(self.verbosity[0]))
-        if arpgtestrc.perform_test_rc(arch_release_candidates=anArchitectureReleaseCandidate):
+            RobotpkgTests(anArchReleaseCandidate=self.arch_release_candidate,
+                          debug=int(aHandlingImg.robotpkg_mng_vars['verbosity']))
+        if arpgtestrc.perform_test_rc():
             # If it worked then compile the package specified in targetpkg
-            if 'targetpkg' in anArchitectureReleaseCandidate.data:
+            if 'targetpkg' in self.arch_release_candidate.robotpkg_mng_vars:
                 # Test if this is a list or not
-                if isinstance(anArchitectureReleaseCandidate.data['targetpkg'],str) :
-                    arpgtestrc.compile_package(anArchitectureReleaseCandidate.data['targetpkg'])
+                if isinstance(anArchReleaseCandidate.robotpkg_mng_vars['targetpkg'],str) :
+                    arpgtestrc.compile_package(anArchReleaseCandidate.robotpkg_mng_vars['targetpkg'])
                     self.notify_ok("Robotpkg helpers",
-                                   "Compiling "+anArchitectureReleaseCandidate.data['targetpkg']+ " succeeded"
+                                   "Compiling "+anArchReleaseCandidate.robotpkg_mng_vars['targetpkg']+ " succeeded"
                     );
                     
                 else:
                     print(self.RED + "ERROR: In json file targetpkg is not a string" + self.NC)
-                    if isinstance(anArchitectureReleaseCandidate.data['targetpkg'],list) :
+                    if isinstance(anArchReleaseCandidate.robotpkg_mng_vars['targetpkg'],list) :
                         print(self.RED + "use targetpkgs instead" + self.NC)
                         self.notify_wrong("Robotpkg helpers","Error in JSON file - Use targetpkgs instead");
             else:
                 # If we have a list of package to compile
-                if 'targetpkgs' in anArchitectureReleaseCandidate.data:
-                    for pkg_name in anArchitectureReleaseCandidate.data['targetpkgs']:
+                if 'targetpkgs' in self.arch_release_candidate.robotpkg_mng_vars:
+                    for pkg_name in self.arch_release_candidate.robotpkg_mng_vars['targetpkgs']:
                         arpgtestrc.compile_package(pkg_name)
 
         else:

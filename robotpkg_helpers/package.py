@@ -191,7 +191,12 @@ class RobotpkgPackage:
         
         bashCmd = robotpkg_base + "/sbin/robotpkg_info -E " + self.name
         stdOutput, errOutput,p_status = execute(bashCmd,lenv)
-        print("Package status:"+str(p_status))
+        if self.debug>3:
+            if p_status:
+                print("Package status: Installed")
+            else:
+                print("Package status: Not installed")
+
         if stdOutput!=None:
             for stdout_line in stdOutput.splitlines():
                 std_cmp = stdout_line.decode('utf-8')
