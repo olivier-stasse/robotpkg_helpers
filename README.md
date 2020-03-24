@@ -59,7 +59,7 @@ This will save the following directories:
 /integration_tests/robotpkg-test-rc/robotpkg
 /integration_tests/robotpkg-test-rc/install
 ```
-in the file called 
+in the file called
 ```
 robotpkg_year_month_day_hour_sec.tgz
 ```
@@ -82,28 +82,18 @@ This problem is addressed in the following steps.
 
 Set of python scripts to perform:
 
-- [Build the ramfs and create the integration_tests directory architecture ](tools/rpkgh_prepare_integration_dirs.py)
-```
-sudo rpkgh_prepare_integration_dirs.py
-```
-- [Remove install and robotpkg directories inside /integration_tests/](tools/rpkgh_clean_integration_dir.py)
-- [Save the install and robotpkg directories inside /integration_tests/ inside archives](tools/rpkgh_save_integration.py)
-The format of the file names is
-```
-/integration_tests/archives/robotpkg_year_month_day.tgz
-/integration_tests/archives/robotpkg_year_month_day.txt
-```
-The text file record the release of each robotpkg package installed.
 - [Restore the install and robotpkg directories inside /integration_tests/ from a file located in archives](tools/rpkgh_restore_dir.py)
 - [Deployment tests for a given set of packages and specific branches in a specified directory](tools/rpkgh_build_arch_rc.py)
 This file read a json file specifying the packages and the branch to build. The file <b>arch_rc.json</b> is an example of such a file:
 ```
 "arch_dist_files": "arch_distfiles",
  "archives": "archives",
- "ramfs_mnt_pt": "robotpkg-test-rc", 
+ "ramfs_mnt_pt": "robotpkg-test-rc",
  "repo_robotpkg_wip": "https://git.openrobots.org/robots/robotpkg/robotpkg-wip.git",
  "repo_robotpkg_main": "https://git.openrobots.org/robots/robotpkg.git",
- "robotpkg_mng_root": "/integration_tests", 
+ "robotpkg_mng_root": "/integration_tests",
+ "robotpkg_mng_base": "/integration_tests/robotpkg-test-rc/install",
+ "robotpkg_mng_src": "/integration_tests/robotpkg-test-rc",
  "rc_pkgs":
  {"dynamic-graph-v3": {"name": "dynamic-graph-v3",
 		       "branch": "devel",
@@ -125,13 +115,25 @@ This file read a json file specifying the packages and the branch to build. The 
 		     "commit": null,
 		     "git_repo": "https://github.com/stack-of-tasks/roscontrol_sot.git",
 		     "tag": null}
-  
+
  },
  "ssh_git_openrobots": false,
  "targetpkg": "talos-dev"
 }
 ```
 - [Generate a dockerfile based on parsing a Makefile using jrl-cmakemodules (experimental)](tools/rpkgh_gen_dockerfile.py)
+- [Build the ramfs and create the integration_tests directory architecture ](tools/rpkgh_prepare_integration_dirs.py)
+```
+sudo rpkgh_prepare_integration_dirs.py
+```
+- [Remove install and robotpkg directories inside /integration_tests/](tools/rpkgh_clean_integration_dir.py)
+- [Save the install and robotpkg directories inside /integration_tests/ inside archives](tools/rpkgh_save_integration.py)
+The format of the file names is
+```
+/integration_tests/archives/robotpkg_year_month_day.tgz
+/integration_tests/archives/robotpkg_year_month_day.txt
+```
+The text file record the release of each robotpkg package installed.
 
 ## JSON format
 
@@ -142,10 +144,10 @@ An example of release architecture to be tested and described using JSON is pres
 ```
 {"arch_dist_files": "arch_distfiles",
  "archives": "archives",
- "ramfs_mnt_pt": "robotpkg-test-rc", 
+ "ramfs_mnt_pt": "robotpkg-test-rc",
  "repo_robotpkg_wip": "https://git.openrobots.org/robots/robotpkg/robotpkg-wip.git",
  "repo_robotpkg_main": "https://git.openrobots.org/robots/robotpkg.git",
- "robotpkg_mng_root": "/integration_tests", 
+ "robotpkg_mng_root": "/integration_tests",
  "rc_pkgs":
 ```
 
@@ -154,10 +156,20 @@ They can be store here to avoid having to download them at each test.
  - The field *ramfs_mnt_pt* indicates where the pair install/robotpkg is located. It indicates
 where a self-contained development environment is deployed.
  - The field *archives* stores the tar ball of the pair install/robotpkg
- - The field *repo_robotpkg_main* indicates the robotpkg repository to use. 
+ - The field *repo_robotpkg_main* indicates the robotpkg repository to use.
 It is useful when you need to have a version of robotpkg slightly modify for your integration test.
  - The field *repo_robotpkg_wip* indicates the wip robotpkg repository to use.
  - The field *robotpkg_mng_root* indicates the repository where you can managed several integration tests.
+ - The field *robotpkg_mng_base* specificies the directory where all the packages are installed, if not specified set to
+   ```
+   robotpkg_mng_root/install
+   ```
+   .
+ - The field *robotpkg_mng_src* specifies the directory where all the source packages are located, if not specified set to
+   ```
+   robotpkg_mng_root
+   ```
+   where the robotpkg software is installed.
  - The field *rc_pkgs* indicates the packages for which you need a special treatment.
  - The field *ssh_git_openrobots* indicates if ssh should be used for authentification when accessing the repositories when the choice
 is possible. Currently this applies only to repo_robopkg_wip and repo_robotpkg_main.
@@ -183,7 +195,7 @@ A package inside the dictionnary *rc_pkgs* is a python dictionnary with the foll
 
 ## Logs
 
-When using *rpkgh_build_arch_rc* log files are generated. They contain information from robotpkg and from RPKGH. Right now the two streams stdout and stderr are handled separately. 
+When using *rpkgh_build_arch_rc* log files are generated. They contain information from robotpkg and from RPKGH. Right now the two streams stdout and stderr are handled separately.
 
 The format used by the logs are:
 ```
@@ -217,4 +229,3 @@ it is possible to unshallow it with:
 ```
 git fetch --unshallow
 ```
-
