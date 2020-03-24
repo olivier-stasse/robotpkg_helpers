@@ -128,7 +128,7 @@ class RobotpkgTests:
 	    'PREFER.assimp=system',
             'ACCEPTABLE_LICENSES+=pal-license',
             'ROS_PACKAGE_PATH='+self.env["ROS_PACKAGE_PATH"],
-            'PKG_CONFIG_PATH='+self.env["PKG_CONFIG_PATH"]
+            'PKG_CONFIG_DIRS='+self.env["PKG_CONFIG_PATH"]
         ]
 
         env=os.environ.copy()
@@ -310,7 +310,7 @@ class RobotpkgTests:
         # Going into the repository directory
         hostname = socket.gethostname()
         group = self.robotpkg_src_intro.package_dict[packagename].group
-        pathname = self.ROBOTPKG_SRC+'/'+group+'/'+packagename+\
+        pathname = self.ROBOTPKG_SRC+'/robotpkg/'+group+'/'+packagename+\
             '/work.'+hostname
         return pathname
 
@@ -392,7 +392,7 @@ class RobotpkgTests:
                                   str(directory_to_clean))
         if directory_to_clean:
             # Going into the directory of the package
-            os.chdir(self.ROBOTPKG_SRC+'/'+group+'/'+packagename)
+            os.chdir(self.ROBOTPKG_SRC+'/robotpkg/'+group+'/'+packagename)
             self.execute("make clean confirm")
             self.execute("make checkout")
         else:
