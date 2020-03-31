@@ -128,7 +128,8 @@ class RobotpkgTests:
 	    'PREFER.assimp=system',
             'ACCEPTABLE_LICENSES+=pal-license',
             'ROS_PACKAGE_PATH='+self.env["ROS_PACKAGE_PATH"],
-            'PKG_CONFIG_DIRS='+self.env["PKG_CONFIG_PATH"]
+            'PKG_CONFIG_DIRS='+self.env["PKG_CONFIG_PATH"],
+            'MAKE_JOBS=3'
         ]
 
         env=os.environ.copy()
