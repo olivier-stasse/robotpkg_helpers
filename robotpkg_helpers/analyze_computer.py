@@ -7,12 +7,12 @@ import datetime
 
 class AnalyzeComputer:
     """ Analyzes the computer and extract the OS version
-    """ 
+    """
 
     def __init__(self):
         self.find_and_analyze_lsb_release()
         self.lookup_ros_distrib()
-        
+
     def find_and_analyze_lsb_release(self):
         """ This method reads the file /etc/lsb-release
         and creates a dictionary of all present variables
@@ -20,7 +20,7 @@ class AnalyzeComputer:
         # Search for lsb-release file
         lsb_release_str="/etc/lsb-release"
         if os.path.exists(lsb_release_str):
-            # If it exists 
+            # If it exists
             self.lsb_release = {}
             with open(lsb_release_str) as f:
                 content = f.readlines()
@@ -40,5 +40,5 @@ class AnalyzeComputer:
                 self.ros_distrib='kinetic'
             elif ubuntu_distrib=='bionic':
                 self.ros_distrib='melodic'
-                
-            
+            elif ubuntu_distrib=='focal':
+                self.ros_distrib='foxy'
